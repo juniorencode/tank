@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 
 canvas.width = 650;
 canvas.height = 650;
+let bullets = [];
 
 class Player {
   constructor(x, y, w, h) {
@@ -16,7 +17,7 @@ class Player {
     this.isCollision = false;
     this.upDown = false;
     document.addEventListener('keydown', e => {
-      this.move(e);
+      this.actions(e);
     });
     document.addEventListener('keyup', e => {
       this.reset();
@@ -29,6 +30,14 @@ class Player {
     }
     ctx.fillStyle = 'red';
     ctx.fillRect(this.x, this.y, this.w, this.h);
+  }
+  actions(e) {
+    if (e.key === 'w' || e.key === 's' || e.key === 'a' || e.key === 'd') {
+      this.move(e);
+    }
+    if (e.key === 't') {
+      this.shot();
+    }
   }
   move(e) {
     if (e.key === 'w' || e.key === 's') {
@@ -52,6 +61,9 @@ class Player {
       }
     }
   }
+  shot() {
+    bullets.push(new Bullet(this));
+  }
   collision(block) {
     if (collision({ x: this.vx, y: this.vy, w: this.w, h: this.h }, block)) {
       this.isCollision = true;
@@ -71,6 +83,24 @@ class Player {
     this.isCollision = false;
     this.vx = this.x;
     this.vy = this.y;
+  }
+}
+
+class Bullet {
+  constructor(player) {
+    this.x = player.x + player.w / 2 - 5;
+    this.y = player.y + player.h / 2 - 5;
+    this.w = 10;
+    this.h = 10;
+    this.color = '#fff';
+    this.isCollision = false;
+  }
+  draw() {
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+  }
+  go() {
+    this.y -= 6;
   }
 }
 
@@ -137,26 +167,26 @@ for (let i = 0; i < grassesPosition.length; i++) {
   grasses.push(new Grass(grassesPosition[i]));
 }
 
-console.log(waters);
 const Radi = new Player(200, 600, 50, 50);
 const grass1 = new Grass(200, 300, 50, 50);
 const metal1 = new Metal(300, 300, 50, 50);
 const metal2 = new Metal(500, 300, 50, 50);
 const water1 = new Water(400, 300, 50, 50);
 
-const calculate = () => {
+const update = () => {
   Radi.exit();
   waters.map(elem => Radi.collision(elem));
   bricks.map(elem => Radi.collision(elem));
   metals.map(elem => Radi.collision(elem));
+  bullets.map(elem => elem.go());
 };
 
 const draw = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   Radi.draw();
-
   waters.map(elem => elem.draw());
   bricks.map(elem => elem.draw());
+  bullets.map(elem => elem.draw());
   grasses.map(elem => elem.draw());
   metals.map(elem => elem.draw());
 };
@@ -173,9 +203,8 @@ const collision = (obj1, obj2) => {
   }
   return collision;
 };
-
 const loop = () => {
-  calculate();
+  update();
   draw();
   window.requestAnimationFrame(loop);
 };
