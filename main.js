@@ -57,6 +57,16 @@ class Player {
       this.isCollision = true;
     }
   }
+  exit() {
+    if (
+      this.vx + this.w > canvas.width ||
+      this.vx < 0 ||
+      this.vy + this.h > canvas.height ||
+      this.vy < 0
+    ) {
+      this.isCollision = true;
+    }
+  }
   reset() {
     this.isCollision = false;
     this.vx = this.x;
@@ -135,6 +145,7 @@ const metal2 = new Metal(500, 300, 50, 50);
 const water1 = new Water(400, 300, 50, 50);
 
 const calculate = () => {
+  Radi.exit();
   waters.map(elem => Radi.collision(elem));
   bricks.map(elem => Radi.collision(elem));
   metals.map(elem => Radi.collision(elem));
