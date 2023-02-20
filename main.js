@@ -8,9 +8,11 @@ class Player {
   constructor(x, y, w, h) {
     this.x = x;
     this.y = y;
+    this.vx = x;
+    this.vy = y;
     this.w = w;
     this.h = h;
-    this.step = 25;
+    this.step = 5;
     this.isCollision = false;
     document.addEventListener('keydown', e => {
       this.move(e);
@@ -24,23 +26,33 @@ class Player {
     if (this.isCollision) {
       return;
     }
+    this.x = this.vx;
+    this.y = this.vy;
     switch (e.key) {
       case 'w':
-        this.y -= this.step;
+        this.vy = this.y - this.step;
         break;
       case 's':
-        this.y += this.step;
+        this.vy = this.y + this.step;
         break;
       case 'a':
-        this.x -= this.step;
+        this.vx = this.x - this.step;
         break;
       case 'd':
-        this.x += this.step;
+        this.vx = this.x + this.step;
         break;
     }
   }
-  collision() {
-    this.isCollision = true;
+  collision(block) {
+    this.isCollision = false;
+    if (collision({ x: this.vx, y: this.vy, w: this.w, h: this.h }, block)) {
+      this.isCollision = true;
+      // this.vx = this.x;
+      // this.vy = this.y;
+    } else {
+      // this.x = this.vx;
+      // this.y = this.vy;
+    }
   }
 }
 
@@ -71,27 +83,20 @@ class Water extends Block {
     super(x, y, w, h);
     this.color = '#4C5CA9';
   }
-  withCollision(player) {
-    if (
-      collision(
-        {
-          x: player.x + player.step,
-          y: player.y + player.step,
-          w: player.w,
-          h: player.h
-        },
-        { x: this.x, y: this.y, w: this.w, h: this.h }
-      )
-    ) {
-      this.isCollision = true;
-      player.collision();
-    }
+}
+
+class Metal extends Block {
+  constructor(x, y, w, h) {
+    super(x, y, w, h);
+    this.color = '#ACABAC';
   }
 }
 
 const Radi = new Player(200, 600, 50, 50);
 const grass1 = new Grass(200, 300, 50, 50);
-const water1 = new Water(300, 300, 50, 50);
+const metal1 = new Metal(300, 300, 50, 50);
+const metal2 = new Metal(500, 300, 50, 50);
+const water1 = new Water(400, 300, 50, 50);
 //player
 // let px = 200;
 // let py = 600;
@@ -100,7 +105,8 @@ const water1 = new Water(300, 300, 50, 50);
 
 const calculate = () => {
   // do something
-  water1.withCollision(Radi);
+  Radi.collision(metal1);
+  Radi.collision(water1);
   // if (
   //   collision({ x: px, y: py, w: pw, h: ph }, { x: 200, y: 200, w: 50, h: 50 })
   // ) {
@@ -114,6 +120,7 @@ const draw = () => {
   Radi.draw();
   grass1.draw();
   water1.draw();
+  metal1.draw();
 };
 
 const collision = (obj1, obj2) => {
