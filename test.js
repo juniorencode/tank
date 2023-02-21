@@ -115,6 +115,9 @@ class Player extends Entity {
     this.isCollision = false;
     this.color = 'red';
     this.game = game;
+    this.image = new Image();
+    this.image.src = './img/tank.png';
+
     // events
     document.addEventListener('keydown', e => {
       this.actions(e);
@@ -122,6 +125,21 @@ class Player extends Entity {
     document.addEventListener('keyup', e => {
       this.reset(e);
     });
+  }
+
+  draw() {
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.drawImage(
+      this.image,
+      0,
+      0,
+      16,
+      16,
+      this.x,
+      this.y,
+      this.w,
+      this.h
+    );
   }
 
   update() {
@@ -281,15 +299,7 @@ class Bullet extends Entity {
 class Block extends Entity {
   constructor(initialArguments) {
     super({ ...initialArguments, w: 50, h: 50 });
-  }
-}
-
-class Grass extends Block {
-  constructor(initialArguments) {
-    super(initialArguments);
-    this.color = '#85C441';
     this.image = new Image();
-    this.image.src = './img/grass.png';
   }
 
   draw() {
@@ -308,10 +318,19 @@ class Grass extends Block {
   }
 }
 
+class Grass extends Block {
+  constructor(initialArguments) {
+    super(initialArguments);
+    this.color = '#85C441';
+    this.image.src = './img/grass.png';
+  }
+}
+
 class Metal extends Block {
   constructor(initialArguments) {
     super(initialArguments);
     this.color = '#ACABAC';
+    this.image.src = './img/metal.png';
   }
 }
 
@@ -319,6 +338,7 @@ class Brick extends Block {
   constructor(initialArguments) {
     super(initialArguments);
     this.color = '#974B22';
+    this.image.src = './img/brick.png';
   }
 }
 
@@ -326,5 +346,6 @@ class Water extends Block {
   constructor(initialArguments) {
     super(initialArguments);
     this.color = '#4C5CA9';
+    this.image.src = './img/water.png';
   }
 }
