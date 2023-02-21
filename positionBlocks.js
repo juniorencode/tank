@@ -1,4 +1,4 @@
-let grassesPosition = [
+const grassesPosition = [
   { x: 0, y: 50, w: 50, h: 50 },
   { x: 0, y: 100, w: 50, h: 50 },
   { x: 0, y: 150, w: 50, h: 50 },
@@ -17,7 +17,7 @@ let grassesPosition = [
   { x: 500, y: 300, w: 50, h: 50 }
 ];
 
-let metalsPosition = [
+const metalsPosition = [
   { x: 150, y: 0, w: 50, h: 50 },
   { x: 150, y: 50, w: 50, h: 50 },
   { x: 150, y: 350, w: 50, h: 50 },
@@ -33,7 +33,7 @@ let metalsPosition = [
   { x: 600, y: 200, w: 50, h: 50 },
   { x: 500, y: 450, w: 50, h: 50 }
 ];
-let bricksPosition = [
+const bricksPosition = [
   { x: 50, y: 50, w: 50, h: 50 },
   { x: 50, y: 100, w: 50, h: 50 },
   { x: 0, y: 300, w: 50, h: 50 },
@@ -97,7 +97,7 @@ let bricksPosition = [
   { x: 350, y: 600, w: 25, h: 50 }
 ];
 
-let watersPosition = [
+const watersPosition = [
   { x: 100, y: 400, w: 50, h: 50 },
   { x: 0, y: 450, w: 50, h: 50 },
   { x: 0, y: 550, w: 50, h: 50 },
