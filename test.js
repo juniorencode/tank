@@ -28,6 +28,7 @@ class Game {
     this.bricks.map(elem => this.player1.collision(elem));
     this.waters.map(elem => this.player1.collision(elem));
     this.bullets.map(elem => elem.go());
+    this.bullets.map(elem => elem.isCollisionB());
   }
 
   draw() {
@@ -230,6 +231,7 @@ class Player extends Entity {
     ) {
       this.isCollision = true;
     }
+    console.log(this.isCollisionB);
   }
 }
 
@@ -248,7 +250,7 @@ class Bullet extends Entity {
     // this.y = player.y + player.h / 2 - 5;
     this.direction = player.isDirection;
     this.color = '#fff';
-    this.isCollision = false;
+    this.isCollisionB = false;
     this.speedBullet = 4;
   }
   go() {
@@ -263,6 +265,16 @@ class Bullet extends Entity {
     }
     if (this.direction == 4) {
       this.x += this.speedBullet;
+    }
+  }
+  collisionInside() {
+    if (
+      this.dx + this.w > 640 ||
+      this.dx < 10 ||
+      this.dy + this.h > 640 ||
+      this.dy < 10
+    ) {
+      this.isCollisionB = true;
     }
   }
 }
