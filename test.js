@@ -12,10 +12,11 @@ class Game {
     this.metals = [];
     this.bricks = [];
     this.waters = [];
+    this.bullets = [];
     this.createMaterials();
 
     // players
-    this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600 });
+    this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
 
     // loop
     this.loop();
@@ -26,6 +27,7 @@ class Game {
     this.metals.map(elem => this.player1.collision(elem));
     this.bricks.map(elem => this.player1.collision(elem));
     this.waters.map(elem => this.player1.collision(elem));
+    this.bullets.map(elem => elem.go());
   }
 
   draw() {
@@ -35,6 +37,7 @@ class Game {
     this.metals.map(elem => elem.draw());
     this.bricks.map(elem => elem.draw());
     this.waters.map(elem => elem.draw());
+    this.bullets.map(elem => elem.draw());
   }
 
   loop() {
@@ -101,7 +104,7 @@ class Entity {
 }
 
 class Player extends Entity {
-  constructor(initialArguments) {
+  constructor({ game, ...initialArguments }) {
     super({ ...initialArguments, w: 50, h: 50 });
     this.dx = this.x;
     this.dy = this.y;
@@ -110,7 +113,7 @@ class Player extends Entity {
     this.isMove = [];
     this.isCollision = false;
     this.color = 'red';
-
+    this.game = game;
     // events
     document.addEventListener('keydown', e => {
       this.actions(e);
@@ -148,6 +151,9 @@ class Player extends Entity {
   actions(e) {
     if (e.key === 'w' || e.key === 's' || e.key === 'a' || e.key === 'd') {
       !this.isMove.includes(e.key) && this.isMove.push(e.key);
+    }
+    if (e.key === 't') {
+      this.shot();
     }
   }
 
@@ -193,6 +199,10 @@ class Player extends Entity {
     }
   }
 
+  shot() {
+    this.game.bullets.push(new Bullet(this));
+  }
+
   collision(block) {
     if (
       this.dx + this.w > block.x &&
@@ -223,6 +233,39 @@ class Player extends Entity {
   }
 }
 
+class Bullet extends Entity {
+  constructor(player) {
+    console.log(player);
+    super({
+      ctx: player.game.ctx,
+      x: player.x + player.w / 2 - 5,
+      y: player.y + player.h / 2 - 5,
+      w: 10,
+      h: 10
+    });
+    // console.log(player.x);
+    // this.x = player.x + player.w / 2 - 5;
+    // this.y = player.y + player.h / 2 - 5;
+    this.direction = player.isDirection;
+    this.color = '#fff';
+    this.isCollision = false;
+    this.speedBullet = 4;
+  }
+  go() {
+    if (this.direction == 1) {
+      this.y -= this.speedBullet;
+    }
+    if (this.direction == 2) {
+      this.y += this.speedBullet;
+    }
+    if (this.direction == 3) {
+      this.x -= this.speedBullet;
+    }
+    if (this.direction == 4) {
+      this.x += this.speedBullet;
+    }
+  }
+}
 class Block extends Entity {
   constructor(initialArguments) {
     super({ ...initialArguments, w: 50, h: 50 });

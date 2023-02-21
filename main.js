@@ -119,7 +119,18 @@ class Bullet {
     ctx.fillRect(this.x, this.y, this.w, this.h);
   }
   go() {
-    this.y -= 6;
+    if (direction == 1) {
+      this.y -= 2;
+    }
+    if (direction == 2) {
+      this.y -= 2;
+    }
+    if (direction == 1) {
+      this.y -= 2;
+    }
+    if (direction == 1) {
+      this.y -= 2;
+    }
   }
 }
 
