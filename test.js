@@ -18,8 +18,6 @@ class Game {
     this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600 });
 
     // loop
-    this.then = Date.now();
-    this.interval = 1000;
     this.loop();
   }
 
@@ -235,6 +233,23 @@ class Grass extends Block {
   constructor(initialArguments) {
     super(initialArguments);
     this.color = '#85C441';
+    this.image = new Image();
+    this.image.src = './img/grass.png';
+  }
+
+  draw() {
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.drawImage(
+      this.image,
+      0,
+      0,
+      16,
+      16,
+      this.x,
+      this.y,
+      this.w,
+      this.h
+    );
   }
 }
 
