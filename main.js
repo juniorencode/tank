@@ -13,7 +13,7 @@ class Player {
     this.vy = y;
     this.w = w;
     this.h = h;
-    this.step = 25;
+    this.step = 5;
     this.isCollision = false;
     this.upDown = false;
     document.addEventListener('keydown', e => {
@@ -45,18 +45,37 @@ class Player {
     } else {
       this.upDown = false;
     }
+    let rx = Math.trunc(this.x / 100) * 100;
+    let rxa = Math.trunc(this.x / 10) * 10;
+    if (rxa >= rx + 50) rx = rx + 50;
+
+    let ry = Math.trunc(this.y / 100) * 100;
+    let rya = Math.trunc(this.y / 10) * 10;
+    if (rya >= ry + 50) ry = ry + 50;
     if (this.upDown) {
       if (e.key == 'w') {
+        if (rx <= this.x && this.x < rx + 15) this.vx = rx;
+        if (rx + 15 <= this.x && this.x <= rx + 35) this.vx = rx + 25;
+        if (rx + 35 < this.x && this.x < this.x + 50) this.vx = rx + 50;
         this.vy = this.y - this.step;
       }
       if (e.key == 's') {
+        if (rx <= this.x && this.x < rx + 15) this.vx = rx;
+        if (rx + 15 <= this.x && this.x <= rx + 35) this.vx = rx + 25;
+        if (rx + 35 < this.x && this.x < this.x + 50) this.vx = rx + 50;
         this.vy = this.y + this.step;
       }
     } else {
       if (e.key == 'a') {
+        if (ry <= this.y && this.y < ry + 15) this.vy = ry;
+        if (ry + 15 <= this.y && this.y <= ry + 35) this.vy = ry + 25;
+        if (ry + 35 < this.y && this.y < this.y + 50) this.vy = ry + 50;
         this.vx = this.x - this.step;
       }
       if (e.key == 'd') {
+        if (ry <= this.y && this.y <= ry + 15) this.vy = ry;
+        if (ry + 15 <= this.y && this.y <= ry + 35) this.vy = ry + 25;
+        if (ry + 35 < this.y && this.y < this.y + 50) this.vy = ry + 50;
         this.vx = this.x + this.step;
       }
     }
@@ -168,10 +187,6 @@ for (let i = 0; i < grassesPosition.length; i++) {
 }
 
 const Radi = new Player(200, 600, 50, 50);
-const grass1 = new Grass(200, 300, 50, 50);
-const metal1 = new Metal(300, 300, 50, 50);
-const metal2 = new Metal(500, 300, 50, 50);
-const water1 = new Water(400, 300, 50, 50);
 
 const update = () => {
   Radi.exit();

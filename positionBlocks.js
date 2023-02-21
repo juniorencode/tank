@@ -96,6 +96,7 @@ let bricksPosition = [
   { x: 275, y: 600, w: 25, h: 50 },
   { x: 350, y: 600, w: 25, h: 50 }
 ];
+
 let watersPosition = [
   { x: 100, y: 400, w: 50, h: 50 },
   { x: 0, y: 450, w: 50, h: 50 },
