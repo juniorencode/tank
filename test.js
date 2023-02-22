@@ -122,7 +122,13 @@ class Player extends Entity {
     this.color = 'red';
     this.game = game;
     this.image = new Image();
-    this.image.src = './img/tank.png';
+    this.image.src = './img/tank_yellow.png';
+
+    // animation
+    this.currentFrame = 0;
+    this.columns = 2;
+    this.delay = 5;
+    this.count = 0;
 
     // events
     document.addEventListener('keydown', e => {
@@ -134,10 +140,11 @@ class Player extends Entity {
   }
 
   draw() {
+    console.log(this.currentFrame);
     this.ctx.imageSmoothingEnabled = false;
     this.ctx.drawImage(
       this.image,
-      0,
+      16 * this.currentFrame,
       0,
       16,
       16,
@@ -149,6 +156,14 @@ class Player extends Entity {
   }
 
   update() {
+    this.count++;
+    this.count = this.count % this.delay;
+
+    // change frame
+    if (this.count == 0 && this.isMove.length != 0) {
+      this.currentFrame++;
+      this.currentFrame = this.currentFrame % 2;
+    }
     switch (this.isMove[this.isMove.length - 1]) {
       case 'w':
         this.isDirection = 1;
