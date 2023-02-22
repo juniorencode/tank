@@ -30,9 +30,7 @@ class Game {
     this.bullets.map(elem => elem.go());
     this.bullets.map((elem, i) => {
       elem.collisionInside();
-      console.log(elem.isCollisionB);
       if (elem.isCollisionB) {
-        console.log(elem.isCollisionB);
         this.bullets.splice(i, 1);
       }
     });
@@ -119,6 +117,7 @@ class Player extends Entity {
     this.step = 1.5;
     this.isDirection = 1;
     this.isMove = [];
+    this.isShot = false;
     this.isCollision = false;
     this.color = 'red';
     this.game = game;
@@ -169,6 +168,7 @@ class Player extends Entity {
       this.x = this.dx;
       this.y = this.dy;
     }
+    console.log(this.isShot);
 
     this.move();
     this.collisionInside();
@@ -179,6 +179,9 @@ class Player extends Entity {
       !this.isMove.includes(e.key) && this.isMove.push(e.key);
     }
     if (e.key === 't') {
+      if (this.isShot) return;
+      // !this.isMove.includes(e.key) &&
+      this.isShot = true;
       this.shot();
     }
   }
@@ -245,6 +248,11 @@ class Player extends Entity {
     this.isCollision = false;
     this.dx = this.x;
     this.dy = this.y;
+    if (this.isShot) {
+      setTimeout(() => {
+        this.isShot = false;
+      }, 5000);
+    }
   }
 
   collisionInside() {
@@ -292,10 +300,10 @@ class Bullet extends Entity {
   }
   collisionInside() {
     if (
-      this.x + this.w > 640 ||
-      this.x < 10 ||
-      this.y + this.h > 640 ||
-      this.y < 10
+      this.x + this.w > 650 ||
+      this.x < 0 ||
+      this.y + this.h > 650 ||
+      this.y < 0
     ) {
       this.isCollisionB = true;
     } else this.isCollisionB = false;
