@@ -16,7 +16,7 @@ class Game {
     this.createMaterials();
 
     // players
-    this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
+    this.player1 = new Player({ ctx: this.ctx, x: 200, y: 500, game: this });
 
     // loop
     this.loop();
@@ -28,7 +28,14 @@ class Game {
     this.bricks.map(elem => this.player1.collision(elem));
     this.waters.map(elem => this.player1.collision(elem));
     this.bullets.map(elem => elem.go());
-    this.bullets.map(elem => elem.isCollisionB());
+    this.bullets.map((elem, i) => {
+      elem.collisionInside();
+      console.log(elem.isCollisionB);
+      if (elem.isCollisionB) {
+        console.log(elem.isCollisionB);
+        this.bullets.splice(i, 1);
+      }
+    });
   }
 
   draw() {
@@ -249,13 +256,11 @@ class Player extends Entity {
     ) {
       this.isCollision = true;
     }
-    console.log(this.isCollisionB);
   }
 }
 
 class Bullet extends Entity {
   constructor(player) {
-    console.log(player);
     super({
       ctx: player.game.ctx,
       x: player.x + player.w / 2 - 5,
@@ -287,18 +292,18 @@ class Bullet extends Entity {
   }
   collisionInside() {
     if (
-      this.dx + this.w > 640 ||
-      this.dx < 10 ||
-      this.dy + this.h > 640 ||
-      this.dy < 10
+      this.x + this.w > 640 ||
+      this.x < 10 ||
+      this.y + this.h > 640 ||
+      this.y < 10
     ) {
       this.isCollisionB = true;
-    }
+    } else this.isCollisionB = false;
   }
 }
 class Block extends Entity {
   constructor(initialArguments) {
-    super({ ...initialArguments, w: 50, h: 50 });
+    super(initialArguments);
     this.image = new Image();
   }
 
