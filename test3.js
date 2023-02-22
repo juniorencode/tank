@@ -17,7 +17,7 @@ class Game {
 
     // players
     this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
-    this.enemy1 = new Enemy({ ctx: this.ctx, x: 200, y: 400, game: this });
+    this.enemy1 = new Enemy({ ctx: this.ctx, x: 300, y: 400, game: this });
 
     // loop
     this.loop();
@@ -30,9 +30,6 @@ class Game {
     this.bricks.map(elem => this.player1.collision(elem));
     this.waters.map(elem => this.player1.collision(elem));
 
-    this.player1.collision(this.enemy1);
-    this.enemy1.collision(this.player1);
-
     this.bricks.map(elem => this.enemy1.collision(elem));
     this.metals.map(elem => this.enemy1.collision(elem));
 
@@ -41,11 +38,6 @@ class Game {
     this.bullets.map((elemB, i) => {
       this.metals.map(elem => elemB.collision(elem));
       this.bricks.map(elem => elemB.collision(elem));
-
-      elemB.collision(this.player1);
-      elemB.collision(this.enemy1);
-      this.bullets.map((elem, j) => i !== j && elemB.collision(elem));
-
       elemB.collisionInside();
       if (elemB.isCollisionB) {
         this.bullets.splice(i, 1);
@@ -326,6 +318,9 @@ class Enemy extends Tank {
     this.step = 1;
     this.directionFail = 0;
     setInterval(() => {
+      this.isDirection = Math.floor(Math.random() * 4) + 1;
+    }, 2000);
+    setInterval(() => {
       this.isShot = true;
       this.shot();
     }, 2000);
@@ -333,41 +328,43 @@ class Enemy extends Tank {
   update() {
     this.count++;
     this.count = this.count % this.delay;
-
+    console.log(this.isDirection);
     // change frame
-    if (this.count === 0) {
+    if (this.count === 0 && this.isMove.length !== 0) {
       this.currentFrame++;
       this.currentFrame = this.currentFrame % 2;
+    }
+    switch (this.isDirection) {
+      case 1:
+        this.angle = 0 * (Math.PI / 180);
+        if (this.y % 100 == 0) {
+          this.isDirection = Math.floor(Math.random() * 4) + 1;
+        }
+        break;
+      case 2:
+        this.angle = 180 * (Math.PI / 180);
+        if (this.y % 100 == 0) {
+          this.isDirection = Math.floor(Math.random() * 4) + 1;
+        }
+        //
+
+        break;
+      case 3:
+        this.angle = 270 * (Math.PI / 180);
+        if (this.x % 100 == 0) {
+          this.isDirection = Math.floor(Math.random() * 4) + 1;
+        }
+        break;
+      case 4:
+        this.angle = 90 * (Math.PI / 180);
+        if (this.x % 100 == 0) {
+          this.isDirection = Math.floor(Math.random() * 4) + 1;
+        }
+        break;
     }
     if (!this.isCollision) {
       this.x = this.dx;
       this.y = this.dy;
-      switch (this.isDirection) {
-        case 1:
-          this.angle = 0 * (Math.PI / 180);
-          if (this.y % 100 == 0) {
-            this.isDirection = Math.floor(Math.random() * 4) + 1;
-          }
-          break;
-        case 2:
-          this.angle = 180 * (Math.PI / 180);
-          if (this.y % 100 == 0) {
-            this.isDirection = Math.floor(Math.random() * 4) + 1;
-          }
-          break;
-        case 3:
-          this.angle = 270 * (Math.PI / 180);
-          if (this.x % 100 == 0) {
-            this.isDirection = Math.floor(Math.random() * 4) + 1;
-          }
-          break;
-        case 4:
-          this.angle = 90 * (Math.PI / 180);
-          if (this.x % 100 == 0) {
-            this.isDirection = Math.floor(Math.random() * 4) + 1;
-          }
-          break;
-      }
     } else {
       this.reset();
     }
@@ -376,11 +373,11 @@ class Enemy extends Tank {
     this.collisionInside();
   }
   reset() {
-    let directionRandom = Math.floor(Math.random() * 4) + 1;
+    // let directionRandom = Math.floor(Math.random() * 4) + 1;
     // while (this.isDirection === directionRandom) {
     //   directionRandom = Math.floor(Math.random() * 4) + 1;
     // }
-    this.isDirection = directionRandom;
+    // this.isDirection = directionRandom;
     this.isCollision = false;
     this.dx = this.x;
     this.dy = this.y;
@@ -418,20 +415,8 @@ class Bullet extends Entity {
     this.color = '#fff';
     this.isCollisionB = false;
     this.speedBullet = 4;
-    if (this.direction == 1) {
-      this.y -= 28;
-    }
-    if (this.direction == 2) {
-      this.y += 28;
-    }
-    if (this.direction == 3) {
-      this.x -= 28;
-    }
-    if (this.direction == 4) {
-      this.x += 28;
-    }
-    // this.dx = this.x;
-    // this.dy = this.y;
+    this.dx = this.x;
+    this.dy = this.y;
   }
   go() {
     if (this.isCollisionB) return;
@@ -457,9 +442,8 @@ class Bullet extends Entity {
       this.y < block.y + block.h
     ) {
       this.isCollisionB = true;
-      block.isCollisionB = true;
-      // this.dx = this.x;
-      // this.dy = this.y;
+      this.dx = this.x;
+      this.dy = this.y;
     }
   }
 
