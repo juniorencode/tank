@@ -124,6 +124,13 @@ class Player extends Entity {
     this.image = new Image();
     this.image.src = './img/tank_yellow.png';
 
+    // direction
+    // this.posX = this.game.canvas.width / 2;
+    // this.posY = this.game.canvas.height / 2;
+    this.posX = this.w / 2;
+    this.posY = this.h / 2;
+    this.angle = 0;
+
     // animation
     this.currentFrame = 0;
     this.columns = 2;
@@ -140,19 +147,40 @@ class Player extends Entity {
   }
 
   draw() {
-    console.log(this.currentFrame);
     this.ctx.imageSmoothingEnabled = false;
+    // this.ctx.drawImage(
+    //   this.image,
+    //   16 * this.currentFrame,
+    //   0,
+    //   16,
+    //   16,
+    //   this.x,
+    //   this.y,
+    //   this.w,
+    //   this.h
+    // );
+
+    console.log(this.x, this.y);
+
+    this.ctx.translate(this.posX + this.x, this.y + this.posY);
+    this.ctx.rotate(this.angle);
+    this.ctx.scale(-1, 1);
     this.ctx.drawImage(
       this.image,
       16 * this.currentFrame,
       0,
       16,
       16,
-      this.x,
-      this.y,
+      -this.posX,
+      -this.posY,
+      // 0,
+      // 0,
       this.w,
       this.h
     );
+    this.ctx.scale(-1, 1);
+    this.ctx.rotate(-this.angle);
+    this.ctx.translate(-this.posX - this.x, -this.y - this.posY);
   }
 
   update() {
@@ -167,15 +195,19 @@ class Player extends Entity {
     switch (this.isMove[this.isMove.length - 1]) {
       case 'w':
         this.isDirection = 1;
+        this.angle = 0 * (Math.PI / 180);
         break;
       case 's':
         this.isDirection = 2;
+        this.angle = 180 * (Math.PI / 180);
         break;
       case 'a':
         this.isDirection = 3;
+        this.angle = 270 * (Math.PI / 180);
         break;
       case 'd':
         this.isDirection = 4;
+        this.angle = 90 * (Math.PI / 180);
         break;
     }
 
@@ -183,7 +215,6 @@ class Player extends Entity {
       this.x = this.dx;
       this.y = this.dy;
     }
-    console.log(this.isShot);
 
     this.move();
     this.collisionInside();
@@ -196,7 +227,6 @@ class Player extends Entity {
     }
     if (key === 't') {
       if (this.isShot) return;
-      // !this.isMove.includes(e.key) &&
       this.isShot = true;
       this.shot();
     }
