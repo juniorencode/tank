@@ -33,6 +33,8 @@ const metalsPosition = [
   { x: 600, y: 200, w: 50, h: 50 },
   { x: 500, y: 450, w: 50, h: 50 }
 ];
+// const bricksPosition = [{ x: 200, y: 300, w: 50, h: 50 }];
+
 const bricksPosition = [
   { x: 50, y: 50, w: 50, h: 50 },
   { x: 50, y: 100, w: 50, h: 50 },
