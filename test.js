@@ -27,10 +27,14 @@ class Game {
     this.metals.map(elem => this.player1.collision(elem));
     this.bricks.map(elem => this.player1.collision(elem));
     this.waters.map(elem => this.player1.collision(elem));
+
     this.bullets.map(elem => elem.go());
-    this.bullets.map((elem, i) => {
-      elem.collisionInside();
-      if (elem.isCollisionB) {
+
+    this.bullets.map((elemB, i) => {
+      this.metals.map(elem => elemB.collision(elem));
+      this.bricks.map(elem => elemB.collision(elem));
+      elemB.collisionInside();
+      if (elemB.isCollisionB) {
         this.bullets.splice(i, 1);
       }
     });
@@ -39,11 +43,11 @@ class Game {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.player1.draw();
-    this.grasses.map(elem => elem.draw());
     this.metals.map(elem => elem.draw());
     this.bricks.map(elem => elem.draw());
     this.waters.map(elem => elem.draw());
     this.bullets.map(elem => elem.draw());
+    this.grasses.map(elem => elem.draw());
   }
 
   loop() {
@@ -140,7 +144,6 @@ class Player extends Entity {
   }
 
   draw() {
-    console.log(this.currentFrame);
     this.ctx.imageSmoothingEnabled = false;
     this.ctx.drawImage(
       this.image,
@@ -183,7 +186,6 @@ class Player extends Entity {
       this.x = this.dx;
       this.y = this.dy;
     }
-    console.log(this.isShot);
 
     this.move();
     this.collisionInside();
@@ -196,7 +198,6 @@ class Player extends Entity {
     }
     if (key === 't') {
       if (this.isShot) return;
-      // !this.isMove.includes(e.key) &&
       this.isShot = true;
       this.shot();
     }
@@ -287,8 +288,8 @@ class Bullet extends Entity {
   constructor(player) {
     super({
       ctx: player.game.ctx,
-      x: player.x + player.w / 2 - 5,
-      y: player.y + player.h / 2 - 5,
+      x: player.x + 50 / 2 - 5,
+      y: player.y + 50 / 2 - 5,
       w: 10,
       h: 10
     });
@@ -296,8 +297,11 @@ class Bullet extends Entity {
     this.color = '#fff';
     this.isCollisionB = false;
     this.speedBullet = 4;
+    this.dx = this.x;
+    this.dy = this.y;
   }
   go() {
+    if (this.isCollisionB) return;
     if (this.direction == 1) {
       this.y -= this.speedBullet;
     }
@@ -311,6 +315,20 @@ class Bullet extends Entity {
       this.x += this.speedBullet;
     }
   }
+
+  collision(block) {
+    if (
+      this.x + this.w > block.x &&
+      this.x < block.x + block.w &&
+      this.y + this.h > block.y &&
+      this.y < block.y + block.h
+    ) {
+      this.isCollisionB = true;
+      this.dx = this.x;
+      this.dy = this.y;
+    }
+  }
+
   collisionInside() {
     if (
       this.x + this.w > 650 ||
@@ -319,7 +337,7 @@ class Bullet extends Entity {
       this.y < 0
     ) {
       this.isCollisionB = true;
-    } else this.isCollisionB = false;
+    }
   }
 }
 class Block extends Entity {
