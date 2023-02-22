@@ -175,10 +175,11 @@ class Player extends Entity {
   }
 
   actions(e) {
-    if (e.key === 'w' || e.key === 's' || e.key === 'a' || e.key === 'd') {
-      !this.isMove.includes(e.key) && this.isMove.push(e.key);
+    const key = e.key.toLowerCase();
+    if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
+      !this.isMove.includes(key) && this.isMove.push(key);
     }
-    if (e.key === 't') {
+    if (key === 't') {
       if (this.isShot) return;
       // !this.isMove.includes(e.key) &&
       this.isShot = true;
@@ -229,7 +230,12 @@ class Player extends Entity {
   }
 
   shot() {
-    this.game.bullets.push(new Bullet(this));
+    if (this.isShot) {
+      this.game.bullets.push(new Bullet(this));
+      setTimeout(() => {
+        this.isShot = false;
+      }, 1000);
+    }
   }
 
   collision(block) {
@@ -244,15 +250,10 @@ class Player extends Entity {
   }
 
   reset(e) {
-    this.isMove = this.isMove.filter(letter => letter !== e.key);
+    this.isMove = this.isMove.filter(letter => letter !== e.key.toLowerCase());
     this.isCollision = false;
     this.dx = this.x;
     this.dy = this.y;
-    if (this.isShot) {
-      setTimeout(() => {
-        this.isShot = false;
-      }, 5000);
-    }
   }
 
   collisionInside() {
@@ -276,9 +277,6 @@ class Bullet extends Entity {
       w: 10,
       h: 10
     });
-    // console.log(player.x);
-    // this.x = player.x + player.w / 2 - 5;
-    // this.y = player.y + player.h / 2 - 5;
     this.direction = player.isDirection;
     this.color = '#fff';
     this.isCollisionB = false;
