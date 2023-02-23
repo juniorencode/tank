@@ -13,27 +13,48 @@ class Game {
     this.bricks = [];
     this.waters = [];
     this.bullets = [];
+    this.players = [];
     this.createMaterials();
 
     // players
-    this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
-    this.player2 = new Player({ ctx: this.ctx, x: 200, y: 500, game: this });
+    this.playersN = 2;
 
-    this.enemy1 = new Enemy({ ctx: this.ctx, x: 200, y: 400, game: this });
+    playersPosition.map(elem =>
+      this.players.push(new Player({ ctx: this.ctx, game: this, ...elem }))
+    );
+    if (this.players.length > this.playersN) {
+      for (let i = 0; i <= 2; i++) {
+        this.players[1].dead();
+        console.log(this.players[1].life);
+      }
+      this.players.splice(1, 1);
+    }
+    this.players.map((elem, i) => elem.playerC(1 + i));
+    // this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
+    // this.player2 = new Player({ ctx: this.ctx, x: 200, y: 500, game: this });
+
+    this.enemy1 = new Enemy({ ctx: this.ctx, x: 0, y: 0, game: this });
 
     // loop
     this.loop();
   }
 
   update() {
-    this.player1.update();
+    this.players.map(elem => elem.update());
     this.enemy1.update();
-    this.metals.map(elem => this.player1.collision(elem));
-    this.bricks.map(elem => this.player1.collision(elem));
-    this.waters.map(elem => this.player1.collision(elem));
 
-    this.player1.collision(this.enemy1);
-    this.enemy1.collision(this.player1);
+    this.metals.map(elem => this.players.map(elemP => elemP.collision(elem)));
+    this.bricks.map(elem => this.players.map(elemP => elemP.collision(elem)));
+    this.waters.map(elem => this.players.map(elemP => elemP.collision(elem)));
+
+    this.players.map((elemB, i) => {
+      this.players.map((elem, j) => i !== j && elemB.collision(elem));
+    });
+
+    this.players.map(elem => elem.collision(this.enemy1));
+
+    // this.players[0].collision(this.enemy1);
+    this.enemy1.collision(this.players[0]);
 
     this.bricks.map(elem => this.enemy1.collision(elem));
     this.metals.map(elem => this.enemy1.collision(elem));
@@ -42,13 +63,14 @@ class Game {
     this.bullets.map(elem => elem.go());
 
     this.bullets.map((elemB, i) => {
-      elemB.collision(this.player1);
+      this.players.map(elem => elemB.collision(elem));
+      // elemB.collision(this.players);
       if (elemB.isCollisionB == true) {
-        this.player1.dead();
-        console.log(this.player1.life);
+        this.players.map(elem => elem.dead());
+        console.log(this.players[0].life);
       }
       this.metals.map(elem => elemB.collision(elem));
-      this.bricks.map(elem => elemB.collision(elem));
+      // this.bricks.map(elem => elemB.collision(elem));
 
       elemB.collision(this.enemy1);
       this.bullets.map((elem, j) => i !== j && elemB.collision(elem));
@@ -62,8 +84,7 @@ class Game {
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.player1.draw();
-    this.player2.draw();
+    this.players.map(elem => elem.draw());
     this.metals.map(elem => elem.draw());
     this.bricks.map(elem => elem.draw());
     this.waters.map(elem => elem.draw());
@@ -219,6 +240,9 @@ class Player extends Tank {
     this.life = 3;
     this.image = new Image();
     this.image.src = './img/tank_yellow.png';
+    this.playerN = 2;
+    this.initialX = this.x;
+    this.initialY = this.y;
 
     // events
     document.addEventListener('keydown', e => {
@@ -228,8 +252,11 @@ class Player extends Tank {
       this.reset(e);
     });
   }
-
+  playerC(indexPlayer) {
+    this.playerN = indexPlayer;
+  }
   update() {
+    console.log(this.playerN);
     if (this.life > 0) {
       this.count++;
       this.count = this.count % this.delay;
@@ -239,6 +266,24 @@ class Player extends Tank {
         this.currentFrame++;
         this.currentFrame = this.currentFrame % 2;
       }
+
+      this.controls();
+
+      if (!this.isCollision) {
+        this.x = this.dx;
+        this.y = this.dy;
+      }
+
+      this.move();
+      this.collisionInside();
+    } else {
+      this.x = 200;
+      this.y = 600;
+    }
+    console.log(this.isMove);
+  }
+  controls() {
+    if (this.playerN === 1) {
       switch (this.isMove[this.isMove.length - 1]) {
         case 'w':
           this.isDirection = 1;
@@ -257,38 +302,68 @@ class Player extends Tank {
           this.angle = 90 * (Math.PI / 180);
           break;
       }
-
-      if (!this.isCollision) {
-        this.x = this.dx;
-        this.y = this.dy;
+    }
+    if (this.playerN === 2) {
+      switch (this.isMove[this.isMove.length - 1]) {
+        case 'arrowup':
+          this.isDirection = 1;
+          this.angle = 0 * (Math.PI / 180);
+          break;
+        case 'arrowdown':
+          this.isDirection = 2;
+          this.angle = 180 * (Math.PI / 180);
+          break;
+        case 'arrowleft':
+          this.isDirection = 3;
+          this.angle = 270 * (Math.PI / 180);
+          break;
+        case 'arrowright':
+          this.isDirection = 4;
+          this.angle = 90 * (Math.PI / 180);
+          break;
       }
-
-      this.move();
-      this.collisionInside();
-    } else {
-      this.x = 200;
-      this.y = 600;
     }
   }
-
   actions(e) {
-    const key = e.key.toLowerCase();
     if (this.life > 0) {
-      if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
-        !this.isMove.includes(key) && this.isMove.push(key);
+      const key = e.key.toLowerCase();
+      if (this.playerN === 1) {
+        if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
+          !this.isMove.includes(key) && this.isMove.push(key);
+        }
+        if (key === 't') {
+          if (this.isShot) return;
+          this.isShot = true;
+          this.shot();
+        }
       }
-      if (key === 't') {
-        if (this.isShot) return;
-        this.isShot = true;
-        this.shot();
+      if (this.playerN === 2) {
+        if (
+          key === 'arrowup' ||
+          key === 'arrowdown' ||
+          key === 'arrowleft' ||
+          key === 'arrowright'
+        ) {
+          !this.isMove.includes(key) && this.isMove.push(key);
+        }
+        if (key === 'p') {
+          if (this.isShot) return;
+          this.isShot = true;
+          this.shot();
+        }
       }
     }
   }
   dead() {
     if (this.life > 0) {
       this.life--;
+      this.dx = this.initialX;
+      this.dy = this.initialY;
       return false;
-    } else return true;
+    } else {
+      this.bullets.splice(0, 1);
+      return true;
+    }
   }
   reset(e) {
     this.isMove = this.isMove.filter(letter => letter !== e.key.toLowerCase());
