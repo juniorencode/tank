@@ -1,3 +1,14 @@
+const playersPosition = [
+  { x: 200, y: 600 },
+  { x: 400, y: 600 }
+];
+
+const enemiesPosition = [
+  { x: 0, y: 0 },
+  { x: 300, y: 0 },
+  { x: 600, y: 0 }
+];
+
 const grassesPosition = [
   { x: 0, y: 50, w: 50, h: 50 },
   { x: 0, y: 100, w: 50, h: 50 },

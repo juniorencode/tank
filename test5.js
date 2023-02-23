@@ -13,44 +13,54 @@ class Game {
     this.bricks = [];
     this.waters = [];
     this.bullets = [];
+    this.players = [];
+    this.enemies = [];
     this.createMaterials();
 
     // players
-    this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
-    this.player2 = new Player({ ctx: this.ctx, x: 200, y: 500, game: this });
+    this.playersN = 2;
+    for (let i = 0; i < this.playersN; i++) {
+      this.players.push(
+        new Player({ ctx: this.ctx, game: this, ...playersPosition[i] })
+      );
+      this.players[i].playerC(i + 1);
+    }
 
-    this.enemy1 = new Enemy({ ctx: this.ctx, x: 200, y: 400, game: this });
+    // enemies
+    this.enemiesN = 3;
+    for (let i = 0; i < this.enemiesN; i++) {
+      this.enemies.push(
+        new Enemy({ ctx: this.ctx, game: this, ...enemiesPosition[i] })
+      );
+    }
+    // playersPosition.map(elem =>
+    // );
+    // if (this.players.length > this.playersN) {
+    //   for (let i = 0; i <= 2; i++) {
+    //     this.players[1].dead();
+    //     console.log(this.players[1].life);
+    //   }
+    //   this.players.splice(1, 1);
+    // }
+    // this.players.map((elem, i) => elem.playerC(1 + i));
+    // this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
+    // this.player2 = new Player({ ctx: this.ctx, x: 200, y: 500, game: this });
+
+    // this.enemy1 = new Enemy({ ctx: this.ctx, x: 0, y: 0, game: this });
+    // this.enemy2 = new Enemy({ ctx: this.ctx, x: 100, y: 0, game: this });
 
     // loop
     this.loop();
   }
 
   update() {
-    this.player1.update();
-    this.enemy1.update();
-    this.metals.map(elem => this.player1.collision(elem));
-    this.bricks.map(elem => this.player1.collision(elem));
-    this.waters.map(elem => this.player1.collision(elem));
-
-    this.player1.collision(this.enemy1);
-    this.enemy1.collision(this.player1);
-
-    this.bricks.map(elem => this.enemy1.collision(elem));
-    this.metals.map(elem => this.enemy1.collision(elem));
-    this.waters.map(elem => this.enemy1.collision(elem));
-
-    this.bullets.map(elem => elem.go());
-
     this.bullets.map((elemB, i) => {
-      elemB.collision(this.player1);
-      if (elemB.isCollisionB == true) {
-        this.player1.dead();
-        console.log(this.player1.life);
-      }
+      elemB.go();
+      this.players.map(elem => elemB.collision(elem));
       this.metals.map(elem => elemB.collision(elem));
-      this.bricks.map(elem => elemB.collision(elem));
+      // this.bricks.map(elem => elemB.collision(elem));
 
-      elemB.collision(this.enemy1);
+      this.enemies.map(elem => elemB.collision(elem));
       this.bullets.map((elem, j) => i !== j && elemB.collision(elem));
 
       elemB.collisionInside();
@@ -58,17 +68,56 @@ class Game {
         this.bullets.splice(i, 1);
       }
     });
+
+    this.players.map((elemB, i) => {
+      elemB.update();
+
+      this.players.map((elem, j) => i !== j && elemB.collision(elem));
+      this.enemies.map(elem => {
+        elemB.collision(elem);
+        elem.collision(elemB);
+      });
+      this.metals.map(elem => elemB.collision(elem));
+      this.bricks.map(elem => elemB.collision(elem));
+      this.waters.map(elem => elemB.collision(elem));
+      if (elemB.isCollisionB) {
+        const live = elemB.dead();
+        if (live) {
+          console.log('her');
+          this.players.splice(i, 1);
+        }
+      }
+    });
+    this.enemies.map((elemB, i) => {
+      elemB.update();
+
+      this.enemies.map((elem, j) => i !== j && elemB.collision(elem));
+      this.players.map(elem => {
+        elemB.collision(elem);
+        elem.collision(elemB);
+      });
+      this.metals.map(elem => elemB.collision(elem));
+      this.bricks.map(elem => elemB.collision(elem));
+      this.waters.map(elem => elemB.collision(elem));
+      if (elemB.isCollisionB) {
+        const live = elemB.dead();
+        if (live) {
+          console.log('her');
+          clearInterval(this.enemies.interval);
+          this.enemies.splice(i, 1);
+        }
+      }
+    });
   }
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.player1.draw();
-    this.player2.draw();
+    this.players.map(elem => elem.draw());
     this.metals.map(elem => elem.draw());
     this.bricks.map(elem => elem.draw());
     this.waters.map(elem => elem.draw());
     this.bullets.map(elem => elem.draw());
-    this.enemy1.draw();
+    this.enemies.map(elem => elem.draw());
     this.grasses.map(elem => elem.draw());
   }
 
@@ -146,6 +195,9 @@ class Tank extends Entity {
     this.isShot = false;
     this.isCollision = false;
     this.game = game;
+    this.isCollisionB = false;
+    this.initialX = this.x;
+    this.initialY = this.y;
 
     // direction
     this.posX = this.w / 2;
@@ -210,6 +262,17 @@ class Tank extends Entity {
       this.isCollision = true;
     }
   }
+  dead() {
+    if (this.life > 0) {
+      this.life--;
+      this.dx = this.initialX;
+      this.dy = this.initialY;
+      this.isCollisionB = false;
+      return false;
+    } else {
+      return true;
+    }
+  }
 }
 
 class Player extends Tank {
@@ -219,6 +282,7 @@ class Player extends Tank {
     this.life = 3;
     this.image = new Image();
     this.image.src = './img/tank_yellow.png';
+    this.playerN = 2;
 
     // events
     document.addEventListener('keydown', e => {
@@ -228,7 +292,9 @@ class Player extends Tank {
       this.reset(e);
     });
   }
-
+  playerC(indexPlayer) {
+    this.playerN = indexPlayer;
+  }
   update() {
     if (this.life > 0) {
       this.count++;
@@ -239,6 +305,20 @@ class Player extends Tank {
         this.currentFrame++;
         this.currentFrame = this.currentFrame % 2;
       }
+
+      this.controls();
+
+      if (!this.isCollision) {
+        this.x = this.dx;
+        this.y = this.dy;
+      }
+
+      this.move();
+      this.collisionInside();
+    }
+  }
+  controls() {
+    if (this.playerN === 1) {
       switch (this.isMove[this.isMove.length - 1]) {
         case 'w':
           this.isDirection = 1;
@@ -257,39 +337,59 @@ class Player extends Tank {
           this.angle = 90 * (Math.PI / 180);
           break;
       }
-
-      if (!this.isCollision) {
-        this.x = this.dx;
-        this.y = this.dy;
+    }
+    if (this.playerN === 2) {
+      switch (this.isMove[this.isMove.length - 1]) {
+        case 'arrowup':
+          this.isDirection = 1;
+          this.angle = 0 * (Math.PI / 180);
+          break;
+        case 'arrowdown':
+          this.isDirection = 2;
+          this.angle = 180 * (Math.PI / 180);
+          break;
+        case 'arrowleft':
+          this.isDirection = 3;
+          this.angle = 270 * (Math.PI / 180);
+          break;
+        case 'arrowright':
+          this.isDirection = 4;
+          this.angle = 90 * (Math.PI / 180);
+          break;
       }
-
-      this.move();
-      this.collisionInside();
-    } else {
-      this.x = 200;
-      this.y = 600;
     }
   }
-
   actions(e) {
-    const key = e.key.toLowerCase();
     if (this.life > 0) {
-      if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
-        !this.isMove.includes(key) && this.isMove.push(key);
+      const key = e.key.toLowerCase();
+      if (this.playerN === 1) {
+        if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
+          !this.isMove.includes(key) && this.isMove.push(key);
+        }
+        if (key === 't') {
+          if (this.isShot) return;
+          this.isShot = true;
+          this.shot();
+        }
       }
-      if (key === 't') {
-        if (this.isShot) return;
-        this.isShot = true;
-        this.shot();
+      if (this.playerN === 2) {
+        if (
+          key === 'arrowup' ||
+          key === 'arrowdown' ||
+          key === 'arrowleft' ||
+          key === 'arrowright'
+        ) {
+          !this.isMove.includes(key) && this.isMove.push(key);
+        }
+        if (key === 'p') {
+          if (this.isShot) return;
+          this.isShot = true;
+          this.shot();
+        }
       }
     }
   }
-  dead() {
-    if (this.life > 0) {
-      this.life--;
-      return false;
-    } else return true;
-  }
+
   reset(e) {
     this.isMove = this.isMove.filter(letter => letter !== e.key.toLowerCase());
     this.isCollision = false;
@@ -347,10 +447,11 @@ class Enemy extends Tank {
     this.isDirection = 2;
     this.step = 1;
     this.directionFail = 0;
-    setInterval(() => {
+    this.life = 2;
+    this.interval = setInterval(() => {
       this.isShot = true;
       this.shot();
-    }, 2000);
+    }, 1000);
   }
   update() {
     this.count++;
@@ -440,6 +541,8 @@ class Bullet extends Entity {
     this.color = '#fff';
     this.isCollisionB = false;
     this.speedBullet = 4;
+    this.owner = player;
+    this.victim = null;
     if (this.direction == 1) {
       this.y -= 28;
     }
@@ -478,10 +581,12 @@ class Bullet extends Entity {
       this.y + this.h > block.y &&
       this.y < block.y + block.h
     ) {
-      this.isCollisionB = true;
-      block.isCollisionB = true;
-      // this.dx = this.x;
-      // this.dy = this.y;
+      console.log(this.owner.constructor.name);
+      if (this.owner.constructor.name != block.constructor.name) {
+        this.isCollisionB = true;
+        block.isCollisionB = true;
+        this.victim = block;
+      }
     }
   }
 
