@@ -33,22 +33,6 @@ class Game {
         new Enemy({ ctx: this.ctx, game: this, ...enemiesPosition[i] })
       );
     }
-    // playersPosition.map(elem =>
-    // );
-    // if (this.players.length > this.playersN) {
-    //   for (let i = 0; i <= 2; i++) {
-    //     this.players[1].dead();
-    //     console.log(this.players[1].life);
-    //   }
-    //   this.players.splice(1, 1);
-    // }
-    // this.players.map((elem, i) => elem.playerC(1 + i));
-    // this.player1 = new Player({ ctx: this.ctx, x: 200, y: 600, game: this });
-    // this.player2 = new Player({ ctx: this.ctx, x: 200, y: 500, game: this });
-
-    // this.enemy1 = new Enemy({ ctx: this.ctx, x: 0, y: 0, game: this });
-    // this.enemy2 = new Enemy({ ctx: this.ctx, x: 100, y: 0, game: this });
-
     // loop
     this.loop();
   }
@@ -58,7 +42,7 @@ class Game {
       elemB.go();
       this.players.map(elem => elemB.collision(elem));
       this.metals.map(elem => elemB.collision(elem));
-      // this.bricks.map(elem => elemB.collision(elem));
+      this.bricks.map(elem => elemB.collision(elem));
 
       this.enemies.map(elem => elemB.collision(elem));
       this.bullets.map((elem, j) => i !== j && elemB.collision(elem));
@@ -83,7 +67,6 @@ class Game {
       if (elemB.isCollisionB) {
         const live = elemB.dead();
         if (live) {
-          console.log('her');
           this.players.splice(i, 1);
         }
       }
@@ -102,8 +85,7 @@ class Game {
       if (elemB.isCollisionB) {
         const live = elemB.dead();
         if (live) {
-          console.log('her');
-          clearInterval(this.enemies.interval);
+          clearInterval(elemB.interval);
           this.enemies.splice(i, 1);
         }
       }
@@ -555,8 +537,6 @@ class Bullet extends Entity {
     if (this.direction == 4) {
       this.x += 28;
     }
-    // this.dx = this.x;
-    // this.dy = this.y;
   }
   go() {
     if (this.isCollisionB) return;
@@ -581,7 +561,6 @@ class Bullet extends Entity {
       this.y + this.h > block.y &&
       this.y < block.y + block.h
     ) {
-      console.log(this.owner.constructor.name);
       if (this.owner.constructor.name != block.constructor.name) {
         this.isCollisionB = true;
         block.isCollisionB = true;
