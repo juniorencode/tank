@@ -218,6 +218,7 @@ class Player extends Entity {
       this.currentFrame++;
       this.currentFrame = this.currentFrame % 2;
     }
+
     switch (this.isMove[this.isMove.length - 1]) {
       case 'w':
         this.isDirection = 1;

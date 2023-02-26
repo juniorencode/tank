@@ -9,6 +9,10 @@ body {
   background-color: #676667;
 }
 
+#canvas {
+  position: relative;
+}
+
 canvas {
-  background-color: #000;
+  position: absolute;
 }
