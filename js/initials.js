@@ -20,9 +20,54 @@ class FpsController {
   }
 }
 
+class Handle {
+  constructor() {
+    this._eventHandlers = {};
+  }
+
+  addListener(node, event, handler, capture = false) {
+    if (!(node in this._eventHandlers)) this._eventHandlers[node] = {};
+
+    if (!(event in this._eventHandlers[node]))
+      this._eventHandlers[node][event] = [];
+
+    this._eventHandlers[node][event].push([handler, capture]);
+    node.addEventListener(event, handler, capture);
+  }
+
+  removeListener(node, handlers, event) {
+    const eventHandlers = handlers[event];
+
+    for (let i = 0; i < eventHandlers.length; i++) {
+      let handler = eventHandlers[i];
+
+      node.removeEventListener(event, handler[0], handler[1]);
+    }
+  }
+
+  removeListeners(node, event) {
+    if (node in this._eventHandlers) {
+      let handlers = this._eventHandlers[node];
+
+      if (event in handlers) {
+        this.removeListener(node, handlers, event);
+      }
+    }
+  }
+
+  removeAllListeners(node) {
+    if (node in this._eventHandlers) {
+      let handlers = this._eventHandlers[node];
+
+      for (const event in handlers) {
+        this.removeListener(node, handlers, event);
+      }
+    }
+  }
+}
+
 class Rectangle {
   constructor(arg) {
-    // this.game = arg.game;
     this.canvas = arg.canvas;
     this.layer = arg.layer;
     this.x = arg.x;
@@ -50,90 +95,6 @@ class Rectangle {
   }
 }
 
-class Sprite {
-  constructor(arg) {
-    // this.game = arg.game;
-    this.canvas = arg.canvas;
-    this.layer = arg.layer;
-    this.pattern = arg.pattern;
-    this.element = new Image();
-    this.element.src = arg.src;
-    this.load = false;
-    this.angle = arg.angle;
-    this.tx = 0;
-    this.ty = 0;
-    this.sx = arg.sx;
-    this.sy = arg.sy;
-    this.sw = arg.sw;
-    this.sh = arg.sh;
-    this.x = arg.x;
-    this.y = arg.y;
-    this.w = arg.w;
-    this.h = arg.h;
-    this.original = !!arg.original;
-    this.middle = !!arg.middle;
-    // this.move = { x: 0, y: 0 };
-    this.count = 0;
-    this.columns = arg.columns;
-    this.delay = arg.delay;
-    this.currentFrame = 0;
-
-    this.draw = () => {
-      this.canvas.putInList(this);
-    };
-
-    this.element.onload = () => {
-      this.load = true;
-      this.canvas.checkLoad();
-      this.resize();
-      this.middle && this.setMiddle();
-      this.angle !== 0 && this.setAngle();
-    };
-  }
-
-  update() {
-    this.count++;
-    this.count = this.count % this.delay;
-
-    if (this.count === 0) {
-      this.currentFrame++;
-      this.currentFrame = this.currentFrame % this.columns;
-    }
-  }
-
-  resize() {
-    if (this.original) {
-      this.sw = this.element.width;
-      this.sh = this.element.height;
-    }
-
-    this.w = !!this.w ? this.w : this.sw;
-    this.h = !!this.h ? this.h : this.sh;
-  }
-
-  setMiddle() {
-    this.x = this.canvas.toInTheMiddleX(this.w) + this.x;
-    this.y = this.canvas.toInTheMiddleY(this.h) + this.y;
-  }
-
-  setAngle() {
-    this.tx = this.w / 2 + this.x;
-    this.ty = this.y + this.h / 2;
-    this.x = -this.w / 2;
-    this.y = -this.h / 2;
-  }
-
-  moveX(num) {
-    const newX = this.canvas.toInTheMiddleX(this.w) + num;
-    this.tx = newX + this.w / 2;
-  }
-
-  moveY(num) {
-    const newY = this.canvas.toInTheMiddleY(this.h) + num;
-    this.ty = newY + this.h / 2;
-  }
-}
-
 class Canvas {
   constructor(arg) {
     this.loop = arg.loop;
@@ -142,6 +103,8 @@ class Canvas {
     this.bits = arg.bits || 16;
     this.rows = arg.rows || 13;
     this.columns = arg.columns || 13;
+    this.oWidth = this.bits * this.columns;
+    this.oHeight = this.bits * this.rows;
     this.width = this.tile * this.columns;
     this.height = this.tile * this.rows;
 
@@ -186,10 +149,6 @@ class Canvas {
   }
 
   draw() {
-    // normalize
-    // console.log(this.layers);
-    // console.log(this.queue);
-
     // draw once
     if (!this.drawOnce) {
       for (let i = 0; i < this.layers.length; i = i + 2) {
@@ -344,48 +303,234 @@ class Canvas {
   }
 }
 
-class Handle {
-  constructor() {
-    this._eventHandlers = {};
+class Sprite {
+  constructor(arg) {
+    this.canvas = arg.canvas;
+    this.layer = arg.layer;
+    this.pattern = arg.pattern;
+    this.element = new Image();
+    this.element.src = arg.src;
+    this.load = false;
+    this.angle = arg.angle;
+    this.tx = 0;
+    this.ty = 0;
+    this.sx = arg.sx;
+    this.sy = arg.sy;
+    this.sw = arg.sw;
+    this.sh = arg.sh;
+    this.x = arg.x;
+    this.y = arg.y;
+    this.w = arg.w;
+    this.h = arg.h;
+    this.original = !!arg.original;
+    this.middle = !!arg.middle;
+    // this.move = { x: 0, y: 0 };
+    this.count = 0;
+    this.columns = arg.columns;
+    this.delay = arg.delay;
+    this.currentFrame = 0;
+
+    this.draw = () => {
+      this.canvas.putInList(this);
+    };
+
+    this.element.onload = () => {
+      this.load = true;
+      this.canvas.checkLoad();
+      this.resize();
+      this.middle && this.setMiddle();
+      this.angle !== 0 && this.setAngle();
+    };
   }
 
-  addListener(node, event, handler, capture = false) {
-    if (!(node in this._eventHandlers)) this._eventHandlers[node] = {};
+  update() {
+    this.count++;
+    this.count = this.count % this.delay;
 
-    if (!(event in this._eventHandlers[node]))
-      this._eventHandlers[node][event] = [];
-
-    this._eventHandlers[node][event].push([handler, capture]);
-    node.addEventListener(event, handler, capture);
-  }
-
-  removeListener(node, handlers, event) {
-    const eventHandlers = handlers[event];
-
-    for (let i = 0; i < eventHandlers.length; i++) {
-      let handler = eventHandlers[i];
-
-      node.removeEventListener(event, handler[0], handler[1]);
+    if (this.count === 0) {
+      this.currentFrame++;
+      this.currentFrame = this.currentFrame % this.columns;
     }
   }
 
-  removeListeners(node, event) {
-    if (node in this._eventHandlers) {
-      let handlers = this._eventHandlers[node];
+  resize() {
+    if (this.original) {
+      this.sw = this.element.width;
+      this.sh = this.element.height;
+    }
 
-      if (event in handlers) {
-        this.removeListener(node, handlers, event);
-      }
+    this.w = !!this.w ? this.w : this.sw;
+    this.h = !!this.h ? this.h : this.sh;
+  }
+
+  setMiddle() {
+    this.x = this.canvas.toInTheMiddleX(this.w) + this.x;
+    this.y = this.canvas.toInTheMiddleY(this.h) + this.y;
+  }
+
+  setAngle() {
+    this.tx = this.w / 2 + this.x;
+    this.ty = this.y + this.h / 2;
+    this.x = -this.w / 2;
+    this.y = -this.h / 2;
+  }
+
+  moveX(num) {
+    const newX = this.canvas.toInTheMiddleX(this.w) + num;
+    this.tx = newX + this.w / 2;
+  }
+
+  moveY(num) {
+    const newY = this.canvas.toInTheMiddleY(this.h) + num;
+    this.ty = newY + this.h / 2;
+  }
+
+  setX(num) {
+    this.x = num;
+  }
+
+  setY(num) {
+    this.y = num;
+  }
+
+  setPosition({ x, y }) {
+    this.x = x;
+    this.y = y;
+    this.setAngle();
+  }
+}
+
+class Player {
+  constructor(arg) {
+    this.game = arg.game;
+    this.setEvents = false;
+    this.controls = arg.controls;
+    this.sprite = this.game.createSprite({
+      layer: arg.layer,
+      src: arg.src,
+      x: arg.x,
+      y: arg.y,
+      columns: arg.columns
+    });
+
+    this.x = arg.x;
+    this.y = arg.y;
+    this.dx = this.x;
+    this.dy = this.y;
+    this.w = 0;
+    this.h = 0;
+    this.step = 1;
+    this.isDirection = 1;
+    this.isMove = [];
+    this.isCollision = false;
+
+    // this.createEvents();
+  }
+
+  update() {
+    if (!this.setEvents) {
+      this.createEvents();
+      this.w = this.sprite.w;
+      this.h = this.sprite.h;
+      this.setEvents = true;
+    }
+
+    switch (this.isMove[this.isMove.length - 1]) {
+      case this.controls.UP:
+        this.changeDirection(1);
+        break;
+      case this.controls.RIGHT:
+        this.changeDirection(2);
+        break;
+      case this.controls.DOWN:
+        this.changeDirection(3);
+        break;
+      case this.controls.LEFT:
+        this.changeDirection(4);
+        break;
+    }
+
+    // normalize position
+    if (!this.isCollision) {
+      this.x = this.dx;
+      this.y = this.dy;
+      this.sprite.setPosition({ x: this.x, y: this.y });
+    }
+
+    this.move();
+
+    this.sprite.update();
+
+    this.game.collisionWithMapBoundaries(this);
+  }
+
+  draw() {
+    this.sprite.draw();
+  }
+
+  handleAction(e) {
+    const key = e.code;
+    if (
+      key === this.controls.UP ||
+      key === this.controls.RIGHT ||
+      key === this.controls.DOWN ||
+      key === this.controls.LEFT
+    ) {
+      !this.isMove.includes(key) && this.isMove.push(key);
     }
   }
 
-  removeAllListeners(node) {
-    if (node in this._eventHandlers) {
-      let handlers = this._eventHandlers[node];
+  handleReset(e) {
+    this.isMove = this.isMove.filter(letter => letter !== e.code);
+    this.isCollision = false;
+    this.dx = this.x;
+    this.dy = this.y;
+  }
 
-      for (const event in handlers) {
-        this.removeListener(node, handlers, event);
-      }
+  createEvents() {
+    this.game.events.addListener(document, 'keydown', e => {
+      this.handleAction(e);
+    });
+    this.game.events.addListener(document, 'keyup', e => {
+      this.handleReset(e);
+    });
+  }
+
+  changeDirection(num) {
+    if (this.isDirection === num) return;
+    this.isDirection = num;
+    this.sprite.angle = (num - 1) * 90;
+  }
+
+  move() {
+    if (this.isMove.length === 0) return;
+    // this.recalculate(this.isDirection);
+    if (this.isDirection === 1) {
+      this.dy = this.y - this.step;
+    }
+
+    if (this.isDirection === 2) {
+      this.dx = this.x + this.step;
+    }
+
+    if (this.isDirection === 3) {
+      this.dy = this.y + this.step;
+    }
+
+    if (this.isDirection === 4) {
+      this.dx = this.x - this.step;
+    }
+  }
+
+  collision(block) {
+    if (
+      this.dx + this.w > block.x &&
+      this.dx < block.x + block.w &&
+      this.dy + this.h > block.y &&
+      this.dy < block.y + block.h
+    ) {
+      this.isCollision = true;
+      block.isCollision = true;
     }
   }
 }

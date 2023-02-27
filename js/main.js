@@ -15,12 +15,8 @@ class Game {
     this.nScene = 0;
     this.scenes = [];
 
-    // create a menu scene
-    // this.menu = new Menu(this.public());
-
-    // create a game
-    // this.level1 = new Level({ game: this.public(), map: maps[0] });
-
+    this.nPlayers = 2;
+    this.players = [];
     this.scenes.push(new Menu(this.public()));
     this.scenes.push(new Level({ game: this.public(), map: maps[0] }));
   }
@@ -40,7 +36,13 @@ class Game {
       createSprite: obj => {
         return this.createSprite(obj);
       },
-      events: this.events
+      createPlayer: obj => {
+        return this.createPlayer(obj);
+      },
+      events: this.events,
+      collisionWithMapBoundaries: obj => {
+        return this.collisionWithMapBoundaries(obj);
+      }
     };
   }
 
@@ -56,10 +58,10 @@ class Game {
   loop() {
     new FpsController(() => {
       this.update();
-    }, 1000);
+    }, 60);
     new FpsController(() => {
       this.draw();
-    }, 1000);
+    }, 60);
   }
 
   changeScene(num) {
@@ -87,7 +89,6 @@ class Game {
 
   createSprite(obj) {
     const sprite = new Sprite({
-      // game: this.public(),
       canvas: this.canvas.public(),
       layer: 1,
       pattern: false,
@@ -101,7 +102,7 @@ class Game {
       w: 0,
       h: 0,
       columns: 1,
-      delay: 12,
+      delay: 3,
       ...obj
     });
 
@@ -110,5 +111,32 @@ class Game {
     this.images.push(sprite);
 
     return sprite;
+  }
+
+  createPlayer(obj) {
+    const player = new Player({
+      game: this.public(),
+      controls: playersControls[this.players.length],
+      ...playersPosition[this.players.length],
+      layer: 2,
+      src: '../img/tank_yellow.png',
+      columns: 2,
+      ...obj
+    });
+
+    this.players.push(player);
+    return player;
+  }
+
+  collisionWithMapBoundaries(obj) {
+    if (
+      obj.dx + obj.w > this.canvas.oWidth ||
+      obj.dx < 0 ||
+      obj.dy + obj.h > this.canvas.oHeight ||
+      obj.dy < 0
+    ) {
+      console.log('collision');
+      obj.isCollision = true;
+    }
   }
 }

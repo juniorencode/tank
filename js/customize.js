@@ -39,8 +39,6 @@ class Menu {
       angle: 90,
       columns: 2
     });
-
-    this.x = null;
   }
 
   update() {
@@ -72,8 +70,6 @@ class Menu {
       case 'Enter':
         this.game.changeScene(1);
         break;
-      case 'KeyR':
-        this.removeEvents();
       default:
         break;
     }
@@ -84,10 +80,6 @@ class Menu {
     this.game.events.addListener(document, 'keypress', e => {
       this.handleSelect(e);
     });
-  }
-
-  removeEvents() {
-    this.game.events.removeAllListeners(document);
   }
 }
 
@@ -134,17 +126,8 @@ class Level {
     this.bricks.map(elem => elem.draw());
   }
 
-  handleTest(e) {
-    if (e.code === 'KeyP') {
-      this.game.changeScene(0);
-    }
-  }
-
   createEvents() {
     this.game.events.removeAllListeners(document);
-    this.game.events.addListener(document, 'keypress', e => {
-      this.handleTest(e);
-    });
   }
 
   createMaterials() {
@@ -200,16 +183,13 @@ class Level {
 
   createPlayer() {
     this.players.push(
-      this.game.createSprite({
-        layer: 2,
-        src: '../img/tank_yellow.png',
-        // ...obj
-        x: 64,
-        // x: 128,
-        y: 192,
-        w: 16,
-        h: 16,
-        columns: 2
+      this.game.createPlayer({
+        src: '../img/tank_yellow.png'
+      })
+    );
+    this.players.push(
+      this.game.createPlayer({
+        src: '../img/tank3.png'
       })
     );
   }
