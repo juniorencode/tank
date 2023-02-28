@@ -510,7 +510,7 @@ class Player {
   }
 
   changeDirection(num) {
-    if (this.isDirection === num) return;
+    // if (this.isDirection === num) return;
     this.isDirection = num;
     this.sprite.angle = (num - 1) * 90;
   }
@@ -519,6 +519,7 @@ class Player {
     if (this.isMove.length === 0) return;
 
     this.recalculate();
+
     if (this.isDirection === 1) {
       this.dy = this.y - this.step;
     }
@@ -535,22 +536,26 @@ class Player {
       this.dx = this.x - this.step;
     }
   }
+
   recalculate() {
-    let rx = Math.trunc(this.x / this.w) * this.w;
-    let ry = Math.trunc(this.y / this.w) * this.w;
+    const bit = this.w;
+    console.log(bit);
+    let rx = Math.trunc(this.x / bit) * bit;
+    let ry = Math.trunc(this.y / bit) * bit;
     if (this.isDirection == 1 || this.isDirection == 3) {
-      let tankP = this.w / 2 + this.x;
-      if (tankP >= rx && tankP <= rx + 5) this.x = rx - 8;
-      if (tankP > rx + 5 && tankP <= rx + 11) this.x = rx;
-      if (tankP > rx + 11 && tankP < rx + this.w) this.x = rx + 8;
+      let tankP = bit / 2 + this.dx;
+      if (tankP >= rx && tankP <= rx + 5) this.dx = rx - 8;
+      if (tankP > rx + 5 && tankP <= rx + 11) this.dx = rx;
+      if (tankP > rx + 11 && tankP < rx + bit) this.dx = rx + 8;
     }
     if (this.isDirection == 2 || this.isDirection == 4) {
-      let tankP = this.w / 2 + this.y;
-      if (tankP >= ry && tankP <= ry + 5) this.y = ry - 8;
-      if (tankP > ry + 5 && tankP <= ry + 11) this.y = ry;
-      if (tankP > ry + 11 && tankP < ry + this.w) this.y = ry + 8;
+      let tankP = bit / 2 + this.dy;
+      if (tankP >= ry && tankP <= ry + 5) this.dy = ry - 8;
+      if (tankP > ry + 5 && tankP <= ry + 11) this.dy = ry;
+      if (tankP > ry + 11 && tankP < ry + bit) this.dy = ry + 8;
     }
   }
+
   collision(block) {
     if (
       this.dx + this.w > block.x &&
