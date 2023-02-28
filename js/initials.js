@@ -435,6 +435,7 @@ class Player {
       this.h = this.sprite.h;
       this.setEvents = true;
     }
+    console.log(this.x, this.y);
     switch (this.isMove[this.isMove.length - 1]) {
       case this.controls.UP:
         this.changeDirection(1);
@@ -452,8 +453,12 @@ class Player {
 
     // normalize position
     if (!this.isCollision) {
-      this.x = this.dx;
-      this.y = this.dy;
+      if (this.isDirection == 2 || this.isDirection == 4) {
+        this.x = this.dx;
+      }
+      if (this.isDirection == 1 || this.isDirection == 3) {
+        this.y = this.dy;
+      }
       this.sprite.setPosition({ x: this.x, y: this.y });
     }
     this.move();
@@ -469,6 +474,7 @@ class Player {
 
   handleAction(e) {
     const key = e.code;
+
     if (
       key === this.controls.UP ||
       key === this.controls.RIGHT ||
@@ -517,7 +523,6 @@ class Player {
 
   move() {
     if (this.isMove.length === 0) return;
-
     this.recalculate();
 
     if (this.isDirection === 1) {
@@ -539,20 +544,30 @@ class Player {
 
   recalculate() {
     const bit = this.w;
-    console.log(bit);
-    let rx = Math.trunc(this.x / bit) * bit;
-    let ry = Math.trunc(this.y / bit) * bit;
+    let rx = Math.trunc(this.dx / bit) * bit;
+    let ry = Math.trunc(this.dy / bit) * bit;
     if (this.isDirection == 1 || this.isDirection == 3) {
-      let tankP = bit / 2 + this.dx;
-      if (tankP >= rx && tankP <= rx + 5) this.dx = rx - 8;
-      if (tankP > rx + 5 && tankP <= rx + 11) this.dx = rx;
-      if (tankP > rx + 11 && tankP < rx + bit) this.dx = rx + 8;
+      let tankP = this.dx;
+      if (tankP >= rx && tankP < rx + 4) {
+        this.x = rx;
+        console.log(rx, ry, this.x, this.y, tankP);
+      }
+      if (tankP >= rx + 4 && tankP <= rx + 12) {
+        this.x = rx + 8;
+        console.log(rx, ry, this.x, this.y, tankP);
+      }
+      if (tankP > rx + 12 && tankP < rx + bit) {
+        this.x = rx + 16;
+        console.log(rx, ry, this.x, this.y, tankP);
+      }
     }
     if (this.isDirection == 2 || this.isDirection == 4) {
-      let tankP = bit / 2 + this.dy;
-      if (tankP >= ry && tankP <= ry + 5) this.dy = ry - 8;
-      if (tankP > ry + 5 && tankP <= ry + 11) this.dy = ry;
-      if (tankP > ry + 11 && tankP < ry + bit) this.dy = ry + 8;
+      let tankP = this.dy;
+      if (tankP >= ry && tankP < ry + 4) this.y = ry;
+      if (tankP >= ry + 4 && tankP <= ry + 12) this.y = ry + 8;
+      if (tankP > ry + 12 && tankP < ry + bit) {
+        this.y = ry + 16;
+      }
     }
   }
 

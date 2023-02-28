@@ -378,6 +378,7 @@ class Player extends Tank {
     this.dy = this.y;
   }
   move() {
+    this.recalculate(this.isDirection);
     if (this.isMove.length === 0) return;
     else {
       if (this.isDirection === 1) {
@@ -395,10 +396,28 @@ class Player extends Tank {
       if (this.isDirection === 4) {
         this.dx = this.x + this.step;
       }
-      this.recalculate(this.isDirection);
     }
   }
 
+  recalculate(exy) {
+    if (exy == 1 || exy == 2) {
+      let rx = Math.trunc(this.x / 100) * 100;
+      let rxa = Math.trunc(this.x / 10) * 10;
+      if (rxa >= rx + 50) rx = rx + 50;
+      if (rx <= this.x && this.x < rx + 15) this.x = rx;
+      if (rx + 15 <= this.x && this.x <= rx + 35) this.x = rx + 25;
+      if (rx + 35 < this.x && this.x < this.x + 50) this.x = rx + 50;
+    }
+
+    if (exy == 3 || exy == 4) {
+      let ry = Math.trunc(this.y / 100) * 100;
+      let rya = Math.trunc(this.y / 10) * 10;
+      if (rya >= ry + 50) ry = ry + 50;
+      if (ry <= this.y && this.y < ry + 18) this.y = ry;
+      if (ry + 18 <= this.y && this.y <= ry + 33) this.y = ry + 25;
+      if (ry + 33 < this.y && this.y < this.y + 50) this.y = ry + 50;
+    }
+  }
   collisionInside() {
     if (
       this.dx + this.w > 650 ||
