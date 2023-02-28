@@ -123,7 +123,6 @@ class Level {
     });
 
     this.bullets.map((elemB, i) => {
-      elemB.update();
       this.players.map(elem => elemB.collision(elem));
       this.metals.map(elem => elemB.collision(elem));
       this.bricks.map(elem => {
@@ -135,6 +134,7 @@ class Level {
       // this.enemies.map(elem => elemB.collision(elem));
       this.bullets.map((elem, j) => i !== j && elemB.collision(elem));
 
+      elemB.update();
       // elemB.collisionInside();
       if (elemB.isCollision) {
         this.bullets.splice(i, 1);

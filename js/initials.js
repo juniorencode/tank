@@ -425,6 +425,8 @@ class Player {
     this.isMove = [];
     this.isCollision = false;
 
+    this.isShoot = false;
+
     // this.createEvents();
   }
 
@@ -462,6 +464,8 @@ class Player {
     this.sprite.update();
 
     this.game.collisionWithMapBoundaries(this);
+
+    // console.log(this.isShoot);
   }
 
   draw() {
@@ -484,13 +488,16 @@ class Player {
         this.dy = this.y;
       }
     }
-    if (key === this.controls.SHOOT) {
+    if (key === this.controls.SHOOT && !this.isShoot) {
+      this.isShoot = true;
+
       this.level.createBullet({
         x: this.x,
         y: this.y,
         w: this.w,
         h: this.h,
-        direction: this.isDirection
+        direction: this.isDirection,
+        player: this
       });
     }
   }
@@ -596,7 +603,7 @@ class Bullet {
     this.dx = 0;
     this.dy = 0;
     this.isDirection = 1;
-    this.speedBullet = 1;
+    this.speedBullet = 2;
     this.w = arg.w;
     this.h = arg.h;
     this.isCollision = false;
@@ -636,6 +643,11 @@ class Bullet {
     this.dy = this.y;
 
     this.game.collisionWithMapBoundaries(this);
+
+    console.log(this.isCollision);
+    if (this.isCollision) {
+      this.player.player.isShoot = false;
+    }
   }
 
   draw() {
