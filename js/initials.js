@@ -636,3 +636,34 @@ class Bullet {
     }
   }
 }
+
+// class Block {
+//   constructor(arg) {
+//     this.destroyed = false;
+//   }
+// }
+
+class Brick {
+  constructor(arg) {
+    this.game = arg.game;
+    this.x = arg.x;
+    this.y = arg.y;
+    this.w = arg.w;
+    this.h = arg.h;
+    this.sprite = this.game.createSprite({
+      layer: arg.layer,
+      pattern: arg.pattern,
+      src: arg.src,
+      x: arg.x,
+      y: arg.y
+    });
+  }
+
+  update() {
+    this.sprite.update();
+  }
+
+  draw() {
+    this.sprite.draw();
+  }
+}

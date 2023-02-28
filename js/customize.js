@@ -177,12 +177,21 @@ class Level {
     );
   }
 
+  // createBrick(obj) {
+  //   this.bricks.push(
+  //     this.game.createSprite({
+  //       layer: 3,
+  //       pattern: true,
+  //       src: '../img/brick.png',
+  //       ...obj
+  //     })
+  //   );
+  // }
+
   createBrick(obj) {
     this.bricks.push(
-      this.game.createSprite({
+      this.game.createBrick({
         layer: 3,
-        pattern: true,
-        src: '../img/brick.png',
         ...obj
       })
     );

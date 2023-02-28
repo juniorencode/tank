@@ -36,6 +36,9 @@ class Game {
       createSprite: obj => {
         return this.createSprite(obj);
       },
+      createBrick: obj => {
+        return this.createBrick(obj);
+      },
       createPlayer: obj => {
         return this.createPlayer(obj);
       },
@@ -114,6 +117,18 @@ class Game {
     this.images.push(sprite);
 
     return sprite;
+  }
+
+  createBrick(obj) {
+    const brick = new Brick({
+      game: this.public(),
+      layer: 3,
+      pattern: true,
+      src: '../img/brick.png',
+      ...obj
+    });
+
+    return brick;
   }
 
   createPlayer(obj) {
