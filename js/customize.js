@@ -225,16 +225,16 @@ class Level {
   }
 
   createPlayer() {
-    this.players.push(
-      this.game.createPlayer({
-        level: {
-          createBullet: obj => {
-            return this.createBullet(obj);
-          }
-        },
-        src: '../img/tank_yellow.png'
-      })
-    );
+    // this.players.push(
+    //   this.game.createPlayer({
+    //     level: {
+    //       createBullet: obj => {
+    //         return this.createBullet(obj);
+    //       }
+    //     },
+    //     src: '../img/tank_yellow.png'
+    //   })
+    // );
     this.players.push(
       this.game.createPlayer({
         level: {

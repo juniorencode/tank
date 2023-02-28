@@ -435,7 +435,6 @@ class Player {
       this.h = this.sprite.h;
       this.setEvents = true;
     }
-
     switch (this.isMove[this.isMove.length - 1]) {
       case this.controls.UP:
         this.changeDirection(1);
@@ -518,7 +517,8 @@ class Player {
 
   move() {
     if (this.isMove.length === 0) return;
-    // this.recalculate(this.isDirection);
+
+    this.recalculate();
     if (this.isDirection === 1) {
       this.dy = this.y - this.step;
     }
@@ -535,25 +535,22 @@ class Player {
       this.dx = this.x - this.step;
     }
   }
-  // recalculate(exy) {
-  //   if (exy == 1 || exy == 2) {
-  //     let rx = Math.trunc(this.x / 100) * 100;
-  //     let rxa = Math.trunc(this.x / 10) * 10;
-  //     if (rxa >= rx + 16) rx = rx + 16;
-  //     if (rx <= this.x && this.x < rx + 15) this.x = rx;
-  //     if (rx + 15 <= this.x && this.x <= rx + 35) this.x = rx + 25;
-  //     if (rx + 35 < this.x && this.x < this.x + 16) this.x = rx + 16;
-  //   }
-
-  //   if (exy == 3 || exy == 4) {
-  //     let ry = Math.trunc(this.y / 100) * 100;
-  //     let rya = Math.trunc(this.y / 10) * 10;
-  //     if (rya >= ry + 16) ry = ry + 16;
-  //     if (ry <= this.y && this.y < ry + 18) this.y = ry;
-  //     if (ry + 18 <= this.y && this.y <= ry + 33) this.y = ry + 25;
-  //     if (ry + 33 < this.y && this.y < this.y + 16) this.y = ry + 16;
-  //   }
-  // }
+  recalculate() {
+    let rx = Math.trunc(this.x / this.w) * this.w;
+    let ry = Math.trunc(this.y / this.w) * this.w;
+    if (this.isDirection == 1 || this.isDirection == 3) {
+      let tankP = this.w / 2 + this.x;
+      if (tankP >= rx && tankP <= rx + 5) this.x = rx - 8;
+      if (tankP > rx + 5 && tankP <= rx + 11) this.x = rx;
+      if (tankP > rx + 11 && tankP < rx + this.w) this.x = rx + 8;
+    }
+    if (this.isDirection == 2 || this.isDirection == 4) {
+      let tankP = this.w / 2 + this.y;
+      if (tankP >= ry && tankP <= ry + 5) this.y = ry - 8;
+      if (tankP > ry + 5 && tankP <= ry + 11) this.y = ry;
+      if (tankP > ry + 11 && tankP < ry + this.w) this.y = ry + 8;
+    }
+  }
   collision(block) {
     if (
       this.dx + this.w > block.x &&
