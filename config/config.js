@@ -18,6 +18,6 @@ const playersControls = [
     RIGHT: 'ArrowRight',
     DOWN: 'ArrowDown',
     LEFT: 'ArrowLeft',
-    SHOOT: 'KeyO'
+    SHOOT: 'Semicolon'
   }
 ];

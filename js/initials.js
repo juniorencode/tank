@@ -258,7 +258,7 @@ class Canvas {
   }
 
   putImage() {
-    this.loadIncomplete++;
+    !this.drawOnce && this.loadIncomplete++;
   }
 
   checkLoad() {
@@ -403,6 +403,7 @@ class Sprite {
 class Player {
   constructor(arg) {
     this.game = arg.game;
+    this.level = arg.level;
     this.setEvents = false;
     this.controls = arg.controls;
     this.sprite = this.game.createSprite({
@@ -456,7 +457,6 @@ class Player {
       this.y = this.dy;
       this.sprite.setPosition({ x: this.x, y: this.y });
     }
-
     this.move();
 
     this.sprite.update();
@@ -476,7 +476,21 @@ class Player {
       key === this.controls.DOWN ||
       key === this.controls.LEFT
     ) {
-      !this.isMove.includes(key) && this.isMove.push(key);
+      if (!this.isMove.includes(key)) {
+        this.isMove.push(key);
+        this.isCollision = false;
+        this.dx = this.x;
+        this.dy = this.y;
+      }
+    }
+    if (key === this.controls.SHOOT) {
+      this.level.createBullet({
+        x: this.x,
+        y: this.y,
+        w: this.w,
+        h: this.h,
+        direction: this.isDirection
+      });
     }
   }
 
@@ -521,7 +535,25 @@ class Player {
       this.dx = this.x - this.step;
     }
   }
+  // recalculate(exy) {
+  //   if (exy == 1 || exy == 2) {
+  //     let rx = Math.trunc(this.x / 100) * 100;
+  //     let rxa = Math.trunc(this.x / 10) * 10;
+  //     if (rxa >= rx + 16) rx = rx + 16;
+  //     if (rx <= this.x && this.x < rx + 15) this.x = rx;
+  //     if (rx + 15 <= this.x && this.x <= rx + 35) this.x = rx + 25;
+  //     if (rx + 35 < this.x && this.x < this.x + 16) this.x = rx + 16;
+  //   }
 
+  //   if (exy == 3 || exy == 4) {
+  //     let ry = Math.trunc(this.y / 100) * 100;
+  //     let rya = Math.trunc(this.y / 10) * 10;
+  //     if (rya >= ry + 16) ry = ry + 16;
+  //     if (ry <= this.y && this.y < ry + 18) this.y = ry;
+  //     if (ry + 18 <= this.y && this.y <= ry + 33) this.y = ry + 25;
+  //     if (ry + 33 < this.y && this.y < this.y + 16) this.y = ry + 16;
+  //   }
+  // }
   collision(block) {
     if (
       this.dx + this.w > block.x &&
@@ -531,6 +563,76 @@ class Player {
     ) {
       this.isCollision = true;
       block.isCollision = true;
+    }
+  }
+}
+
+class Bullet {
+  constructor(arg) {
+    this.game = arg.game;
+    this.player = arg.player;
+    this.x = 0;
+    this.y = 0;
+    this.dx = 0;
+    this.dy = 0;
+    this.isDirection = 1;
+    this.speedBullet = 1;
+    this.w = arg.w;
+    this.h = arg.h;
+    this.position();
+    this.sprite = this.game.createSprite({
+      layer: 2,
+      src: '../img/bullet.png',
+      x: this.x,
+      y: this.y,
+      w: this.w,
+      h: this.h,
+      original: true,
+      angle: (this.player.direction - 1) * 90,
+      columns: 1
+    });
+  }
+  update() {
+    // if (this.isCollisionB) return;
+    if (this.player.direction === 1) {
+      this.y -= this.speedBullet;
+    }
+    if (this.player.direction === 2) {
+      this.y += this.speedBullet;
+    }
+    if (this.player.direction === 3) {
+      this.x -= this.speedBullet;
+    }
+    if (this.player.direction === 4) {
+      this.x += this.speedBullet;
+    }
+    console.log(this.x, this.y);
+    this.sprite.x = this.x;
+    this.sprite.y = this.y;
+  }
+
+  draw() {
+    this.sprite.draw();
+  }
+
+  position() {
+    switch (this.player.direction) {
+      case 1:
+        this.x = this.player.x + (this.player.w / 2 - this.w / 2);
+        this.y = this.player.y - this.h;
+        break;
+      case 2:
+        this.y = this.player.y + (this.player.h / 2 - this.h / 2);
+        this.x = this.player.x + this.player.w;
+        break;
+      case 3:
+        this.x = this.player.x + (this.player.w / 2 - this.w / 2);
+        this.y = this.player.y + this.player.h;
+        break;
+      case 4:
+        this.y = this.player.y + (this.player.h / 2 - this.h / 2);
+        this.x = this.player.x - this.w;
+        break;
     }
   }
 }

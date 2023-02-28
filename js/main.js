@@ -17,7 +17,7 @@ class Game {
 
     this.nPlayers = 2;
     this.players = [];
-    this.scenes.push(new Menu(this.public()));
+    // this.scenes.push(new Menu(this.public()));
     this.scenes.push(new Level({ game: this.public(), map: maps[0] }));
   }
 
@@ -38,6 +38,9 @@ class Game {
       },
       createPlayer: obj => {
         return this.createPlayer(obj);
+      },
+      createBullet: obj => {
+        return this.createBullet(obj);
       },
       events: this.events,
       collisionWithMapBoundaries: obj => {
@@ -126,6 +129,20 @@ class Game {
 
     this.players.push(player);
     return player;
+  }
+
+  createBullet(obj) {
+    const bullet = new Bullet({
+      game: this.public(),
+      layer: 2,
+      src: '../img/bullet.png',
+      original: true,
+      w: 4,
+      h: 4,
+      player: obj
+    });
+
+    return bullet;
   }
 
   collisionWithMapBoundaries(obj) {

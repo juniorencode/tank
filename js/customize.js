@@ -114,7 +114,13 @@ class Level {
       this.createEvents();
       this.setEvents = true;
     }
-    this.players.map(elem => elem.update());
+    this.bullets.map(elem => elem.update());
+    this.players.map(player => {
+      player.update();
+      this.metals.map(elem => player.collision(elem));
+      this.bricks.map(elem => player.collision(elem));
+      this.waters.map(elem => player.collision(elem));
+    });
   }
 
   draw() {
@@ -122,8 +128,9 @@ class Level {
     this.players.map(elem => elem.draw());
     this.waters.map(elem => elem.draw());
     this.grasses.map(elem => elem.draw());
-    this.metals.map(elem => elem.draw());
     this.bricks.map(elem => elem.draw());
+    this.metals.map(elem => elem.draw());
+    this.bullets.map(elem => elem.draw());
   }
 
   createEvents() {
@@ -182,15 +189,24 @@ class Level {
   }
 
   createPlayer() {
+    // this.players.push(
+    //   this.game.createPlayer({
+    //     src: '../img/tank_yellow.png'
+    //   })
+    // );
     this.players.push(
       this.game.createPlayer({
-        src: '../img/tank_yellow.png'
-      })
-    );
-    this.players.push(
-      this.game.createPlayer({
+        level: {
+          createBullet: obj => {
+            return this.createBullet(obj);
+          }
+        },
         src: '../img/tank3.png'
       })
     );
+  }
+
+  createBullet(obj) {
+    this.bullets.push(this.game.createBullet(obj));
   }
 }

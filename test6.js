@@ -42,7 +42,7 @@ class Game {
       elemB.go();
       this.players.map(elem => elemB.collision(elem));
       this.metals.map(elem => elemB.collision(elem));
-      this.bricks.map(elem => elemB.collision(elem));
+      // this.bricks.map(elem => elemB.collision(elem));
 
       this.enemies.map(elem => elemB.collision(elem));
       this.bullets.map((elem, j) => i !== j && elemB.collision(elem));
@@ -62,7 +62,7 @@ class Game {
         elem.collision(elemB);
       });
       this.metals.map(elem => elemB.collision(elem));
-      // this.bricks.map(elem => elemB.collision(elem));
+      this.bricks.map(elem => elemB.collision(elem));
       this.waters.map(elem => elemB.collision(elem));
       if (elemB.isCollisionB) {
         const live = elemB.dead();
@@ -225,25 +225,24 @@ class Tank extends Entity {
 
   collision(block) {
     if (
-      this.dx + this.w > block.x &&
-      this.dx < block.x + block.w &&
-      this.dy + this.h > block.y &&
-      this.dy < block.y + block.h
+      this.x + this.w > block.x &&
+      this.x < block.x + block.w &&
+      this.y + this.h > block.y &&
+      this.y < block.y + block.h
     ) {
-      this.isCollision = true;
+      this.isCollision = false;
+    } else {
+      if (
+        this.dx + this.w > block.x &&
+        this.dx < block.x + block.w &&
+        this.dy + this.h > block.y &&
+        this.dy < block.y + block.h
+      ) {
+        this.isCollision = true;
+      }
     }
   }
 
-  collisionInside() {
-    if (
-      this.dx + this.w > 650 ||
-      this.dx < 0 ||
-      this.dy + this.h > 650 ||
-      this.dy < 0
-    ) {
-      this.isCollision = true;
-    }
-  }
   dead() {
     if (this.life > 0) {
       this.life--;
@@ -346,12 +345,7 @@ class Player extends Tank {
       const key = e.key.toLowerCase();
       if (this.playerN === 1) {
         if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
-          if (!this.isMove.includes(key)) {
-            this.isMove.push(key);
-            this.isCollision = false;
-            this.dx = this.x;
-            this.dy = this.y;
-          }
+          !this.isMove.includes(key) && this.isMove.push(key);
         }
         if (key === 't') {
           if (this.isShot) return;
@@ -366,12 +360,7 @@ class Player extends Tank {
           key === 'arrowleft' ||
           key === 'arrowright'
         ) {
-          if (!this.isMove.includes(key)) {
-            this.isMove.push(key);
-            this.isCollision = false;
-            this.dx = this.x;
-            this.dy = this.y;
-          }
+          !this.isMove.includes(key) && this.isMove.push(key);
         }
         if (key === 'p') {
           if (this.isShot) return;
@@ -410,23 +399,14 @@ class Player extends Tank {
     }
   }
 
-  recalculate(exy) {
-    if (exy == 1 || exy == 2) {
-      let rx = Math.trunc(this.x / 100) * 100;
-      let rxa = Math.trunc(this.x / 10) * 10;
-      if (rxa >= rx + 50) rx = rx + 50;
-      if (rx <= this.x && this.x < rx + 15) this.dx = rx;
-      if (rx + 15 <= this.x && this.x <= rx + 35) this.dx = rx + 25;
-      if (rx + 35 < this.x && this.x < this.x + 50) this.dx = rx + 50;
-    }
-
-    if (exy == 3 || exy == 4) {
-      let ry = Math.trunc(this.y / 100) * 100;
-      let rya = Math.trunc(this.y / 10) * 10;
-      if (rya >= ry + 50) ry = ry + 50;
-      if (ry <= this.y && this.y < ry + 18) this.dy = ry;
-      if (ry + 18 <= this.y && this.y <= ry + 33) this.dy = ry + 25;
-      if (ry + 33 < this.y && this.y < this.y + 50) this.dy = ry + 50;
+  collisionInside() {
+    if (
+      this.dx + this.w > 650 ||
+      this.dx < 0 ||
+      this.dy + this.h > 650 ||
+      this.dy < 0
+    ) {
+      this.isCollision = true;
     }
   }
 }
@@ -516,6 +496,16 @@ class Enemy extends Tank {
       if (this.isDirection === 4) {
         this.dx = this.x + this.step;
       }
+    }
+  }
+  collisionInside() {
+    if (
+      this.dx + this.w > 650 ||
+      this.dx < 0 ||
+      this.dy + this.h > 650 ||
+      this.dy < 0
+    ) {
+      this.isCollision = true;
     }
   }
 }
