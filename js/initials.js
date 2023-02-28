@@ -579,6 +579,7 @@ class Bullet {
     this.speedBullet = 1;
     this.w = arg.w;
     this.h = arg.h;
+    this.isCollision = false;
     this.position();
     this.sprite = this.game.createSprite({
       layer: 2,
@@ -597,18 +598,24 @@ class Bullet {
     if (this.player.direction === 1) {
       this.y -= this.speedBullet;
     }
-    if (this.player.direction === 2) {
+    if (this.player.direction === 3) {
       this.y += this.speedBullet;
     }
-    if (this.player.direction === 3) {
+    if (this.player.direction === 4) {
       this.x -= this.speedBullet;
     }
-    if (this.player.direction === 4) {
+    if (this.player.direction === 2) {
       this.x += this.speedBullet;
     }
+    // this.sprite.x = this.x;
+    // this.sprite.y = this.y;
+    this.sprite.setPosition({ x: this.x, y: this.y });
     console.log(this.x, this.y);
-    this.sprite.x = this.x;
-    this.sprite.y = this.y;
+
+    this.dx = this.x;
+    this.dy = this.y;
+
+    this.game.collisionWithMapBoundaries(this);
   }
 
   draw() {
@@ -633,6 +640,18 @@ class Bullet {
         this.y = this.player.y + (this.player.h / 2 - this.h / 2);
         this.x = this.player.x - this.w;
         break;
+    }
+  }
+
+  collision(block) {
+    if (
+      this.dx + this.w > block.x &&
+      this.dx < block.x + block.w &&
+      this.dy + this.h > block.y &&
+      this.dy < block.y + block.h
+    ) {
+      this.isCollision = true;
+      block.isCollision = true;
     }
   }
 }

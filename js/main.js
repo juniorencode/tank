@@ -152,7 +152,6 @@ class Game {
       obj.dy + obj.h > this.canvas.oHeight ||
       obj.dy < 0
     ) {
-      console.log('collision');
       obj.isCollision = true;
     }
   }
