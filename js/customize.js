@@ -114,12 +114,39 @@ class Level {
       this.createEvents();
       this.setEvents = true;
     }
-    this.bullets.map(elem => elem.update());
+
     this.players.map(player => {
       player.update();
       this.metals.map(elem => player.collision(elem));
       this.bricks.map(elem => player.collision(elem));
       this.waters.map(elem => player.collision(elem));
+    });
+
+    this.bullets.map((elemB, i) => {
+      elemB.update();
+      this.players.map(elem => elemB.collision(elem));
+      this.metals.map(elem => elemB.collision(elem));
+      this.bricks.map(elem => {
+        if (elemB.collision(elem)) {
+          elem.damage(elemB);
+        }
+      });
+
+      // this.enemies.map(elem => elemB.collision(elem));
+      this.bullets.map((elem, j) => i !== j && elemB.collision(elem));
+
+      // elemB.collisionInside();
+      if (elemB.isCollision) {
+        this.bullets.splice(i, 1);
+      }
+    });
+
+    this.bricks.map((brick, i) => {
+      brick.update();
+
+      if (brick.destroyed) {
+        this.bricks.splice(i, 1);
+      }
     });
   }
 
@@ -147,7 +174,7 @@ class Level {
   createWater(obj) {
     this.waters.push(
       this.game.createSprite({
-        layer: 3,
+        layer: 1,
         pattern: true,
         src: '../img/water.png',
         ...obj
@@ -169,7 +196,7 @@ class Level {
   createMetal(obj) {
     this.metals.push(
       this.game.createSprite({
-        layer: 3,
+        layer: 1,
         pattern: true,
         src: '../img/metal.png',
         ...obj
@@ -191,18 +218,23 @@ class Level {
   createBrick(obj) {
     this.bricks.push(
       this.game.createBrick({
-        layer: 3,
+        layer: 4,
         ...obj
       })
     );
   }
 
   createPlayer() {
-    // this.players.push(
-    //   this.game.createPlayer({
-    //     src: '../img/tank_yellow.png'
-    //   })
-    // );
+    this.players.push(
+      this.game.createPlayer({
+        level: {
+          createBullet: obj => {
+            return this.createBullet(obj);
+          }
+        },
+        src: '../img/tank_yellow.png'
+      })
+    );
     this.players.push(
       this.game.createPlayer({
         level: {

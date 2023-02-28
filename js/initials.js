@@ -579,6 +579,7 @@ class Bullet {
     this.speedBullet = 1;
     this.w = arg.w;
     this.h = arg.h;
+    this.isCollision = false;
     this.position();
     this.sprite = this.game.createSprite({
       layer: 2,
@@ -597,18 +598,24 @@ class Bullet {
     if (this.player.direction === 1) {
       this.y -= this.speedBullet;
     }
-    if (this.player.direction === 2) {
+    if (this.player.direction === 3) {
       this.y += this.speedBullet;
     }
-    if (this.player.direction === 3) {
+    if (this.player.direction === 4) {
       this.x -= this.speedBullet;
     }
-    if (this.player.direction === 4) {
+    if (this.player.direction === 2) {
       this.x += this.speedBullet;
     }
-    console.log(this.x, this.y);
-    this.sprite.x = this.x;
-    this.sprite.y = this.y;
+    // this.sprite.x = this.x;
+    // this.sprite.y = this.y;
+    this.sprite.setPosition({ x: this.x, y: this.y });
+    // console.log(this.x, this.y);
+
+    this.dx = this.x;
+    this.dy = this.y;
+
+    this.game.collisionWithMapBoundaries(this);
   }
 
   draw() {
@@ -635,6 +642,19 @@ class Bullet {
         break;
     }
   }
+
+  collision(block) {
+    if (
+      this.dx + this.w > block.x &&
+      this.dx < block.x + block.w &&
+      this.dy + this.h > block.y &&
+      this.dy < block.y + block.h
+    ) {
+      this.isCollision = true;
+      block.isCollision = true;
+      return true;
+    }
+  }
 }
 
 // class Block {
@@ -650,6 +670,7 @@ class Brick {
     this.y = arg.y;
     this.w = arg.w;
     this.h = arg.h;
+    this.destroyed = false;
     this.sprite = this.game.createSprite({
       layer: arg.layer,
       pattern: arg.pattern,
@@ -660,10 +681,38 @@ class Brick {
   }
 
   update() {
+    this.sprite.x = this.x;
+    this.sprite.y = this.y;
+    this.sprite.w = this.w;
+    this.sprite.h = this.h;
+
     this.sprite.update();
   }
 
   draw() {
     this.sprite.draw();
+  }
+
+  damage(bullet) {
+    switch (bullet.player.direction) {
+      case 1:
+        this.h = this.h - 16 / 4;
+        break;
+      case 3:
+        this.y = this.y + 16 / 4;
+        this.h = this.h - 16 / 4;
+        break;
+      case 4:
+        this.w = this.w - 16 / 4;
+        break;
+      case 2:
+        this.x = this.x + 16 / 4;
+        this.w = this.w - 16 / 4;
+        break;
+    }
+    if (this.w <= 0 || this.h <= 0) {
+      this.destroyed = true;
+      return true;
+    }
   }
 }
