@@ -435,7 +435,7 @@ class Player {
       this.h = this.sprite.h;
       this.setEvents = true;
     }
-    console.log(this.x, this.y);
+    // console.log(this.x, this.y);
     switch (this.isMove[this.isMove.length - 1]) {
       case this.controls.UP:
         this.changeDirection(1);
@@ -453,12 +453,8 @@ class Player {
 
     // normalize position
     if (!this.isCollision) {
-      if (this.isDirection == 2 || this.isDirection == 4) {
-        this.x = this.dx;
-      }
-      if (this.isDirection == 1 || this.isDirection == 3) {
-        this.y = this.dy;
-      }
+      this.x = this.dx;
+      this.y = this.dy;
       this.sprite.setPosition({ x: this.x, y: this.y });
     }
     this.move();
@@ -523,7 +519,6 @@ class Player {
 
   move() {
     if (this.isMove.length === 0) return;
-    this.recalculate();
 
     if (this.isDirection === 1) {
       this.dy = this.y - this.step;
@@ -540,6 +535,7 @@ class Player {
     if (this.isDirection === 4) {
       this.dx = this.x - this.step;
     }
+    this.recalculate();
   }
 
   recalculate() {
@@ -548,25 +544,32 @@ class Player {
     let ry = Math.trunc(this.dy / bit) * bit;
     if (this.isDirection == 1 || this.isDirection == 3) {
       let tankP = this.dx;
-      if (tankP >= rx && tankP < rx + 4) {
-        this.x = rx;
-        console.log(rx, ry, this.x, this.y, tankP);
+      if (tankP >= rx && tankP <= rx + 5) {
+        // console.log('case 01');
+        this.dx = rx;
       }
-      if (tankP >= rx + 4 && tankP <= rx + 12) {
-        this.x = rx + 8;
-        console.log(rx, ry, this.x, this.y, tankP);
+      if (tankP > rx + 5 && tankP <= rx + 11) {
+        // console.log('case 02');
+        this.dx = rx + 8;
       }
-      if (tankP > rx + 12 && tankP < rx + bit) {
-        this.x = rx + 16;
-        console.log(rx, ry, this.x, this.y, tankP);
+      if (tankP > rx + 11 && tankP < rx + bit) {
+        // console.log('case 03');
+        this.dx = rx + 16;
       }
     }
     if (this.isDirection == 2 || this.isDirection == 4) {
       let tankP = this.dy;
-      if (tankP >= ry && tankP < ry + 4) this.y = ry;
-      if (tankP >= ry + 4 && tankP <= ry + 12) this.y = ry + 8;
-      if (tankP > ry + 12 && tankP < ry + bit) {
-        this.y = ry + 16;
+      if (tankP >= ry && tankP <= ry + 5) {
+        // console.log('case 04');
+        this.dy = ry;
+      }
+      if (tankP > ry + 5 && tankP <= ry + 11) {
+        // console.log('case 05');
+        this.dy = ry + 8;
+      }
+      if (tankP > ry + 11 && tankP < ry + bit) {
+        // console.log('case 06');
+        this.dy = ry + 16;
       }
     }
   }
